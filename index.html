@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn Python — Beginner Course</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <span class="brand-mark">&#9679;</span>
+    <span>Learn Python</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">0 / 0 lessons</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+  <nav id="lesson-nav" class="lesson-nav"></nav>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <button class="icon-btn" id="menu-btn" aria-label="Toggle sidebar">&#9776;</button>
+    <span class="crumb" id="crumb">Loading…</span>
+  </header>
+
+  <div class="content-scroll">
+    <article class="lesson-body" id="lesson-body">
+      <p class="muted">Loading lesson…</p>
+    </article>
+
+    <section class="exercise" id="exercise" hidden>
+      <div class="exercise-head">
+        <span class="badge">Assignment</span>
+        <span class="exercise-prompt" id="exercise-prompt"></span>
+      </div>
+      <textarea id="code" class="code-input" spellcheck="false" autocomplete="off"></textarea>
+      <div class="exercise-actions">
+        <button class="btn btn-ghost" id="run-btn">Run</button>
+        <button class="btn btn-primary" id="submit-btn">Submit</button>
+        <button class="btn btn-ghost" id="reset-btn">Reset</button>
+      </div>
+      <pre class="output" id="output" hidden></pre>
+    </section>
+
+    <footer class="lesson-footer">
+      <button class="btn btn-ghost" id="prev-btn">&larr; Back <kbd>ctrl+,</kbd></button>
+      <button class="btn btn-primary" id="next-btn">Next &rarr; <kbd>ctrl+.</kbd></button>
+    </footer>
+  </div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

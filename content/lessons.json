@@ -1,0 +1,235 @@
+{
+  "lessons": [
+    {
+      "id": "welcome",
+      "chapter": "Getting Started",
+      "title": "Welcome to Python",
+      "body": "# Welcome to Python\n\nPython is a programming language. You write instructions in a file, and Python\nruns them from top to bottom, one line at a time.\n\nIt is a good first language because the code looks close to English:\n\n```python\nprint(\"Hello, world!\")\n```\n\nThat single line prints text to the screen. Compare it to languages where the\nsame task needs five lines of setup, and you can see why beginners start here.\n\n## How this course works\n\n- Each lesson is short. Read it, then do the **Assignment** at the bottom.\n- Type your code in the box and press **Submit**.\n- If it is wrong, you get the expected output next to yours. Compare them.\n- Press **ctrl+.** or the **Next** button to continue.\n\n> You cannot break anything. Every exercise runs in its own throwaway Python\n> process, so a crash costs you nothing.",
+      "exercise": {
+        "prompt": "Print exactly: Hello, world!",
+        "starter": "# Type your code below\n",
+        "expected": "Hello, world!"
+      }
+    },
+    {
+      "id": "print",
+      "chapter": "Getting Started",
+      "title": "print()",
+      "body": "# print()\n\n`print()` shows something on the screen. Whatever you put inside the\nparentheses is what appears in the output.\n\n```python\nprint(\"Python is fun\")\n```\n\nThe quotes are **not** printed. They tell Python \"everything between these is\ntext, not code.\"\n\n## Printing more than once\n\nPython runs line by line, so each `print()` starts a new line:\n\n```python\nprint(\"one\")\nprint(\"two\")\n```\n\n```\none\ntwo\n```\n\n## Numbers vs text\n\nText needs quotes. Numbers do not:\n\n```python\nprint(\"7\")   # prints 7\nprint(7)     # prints 7\nprint(7 + 1) # prints 8, because it is math\n```\n\nThe first one is the *text* `7`. The last one is *math*, so Python calculates\nit. If you put quotes around math, it stays text: `print(\"7 + 1\")` prints\nexactly `7 + 1`.",
+      "exercise": {
+        "prompt": "Print three lines: Python, is, awesome",
+        "starter": "print(\"Python\")\n",
+        "expected": "Python\nis\nawesome"
+      }
+    },
+    {
+      "id": "comments",
+      "chapter": "Getting Started",
+      "title": "Comments",
+      "body": "# Comments\n\nA comment is a note for humans. Python ignores it completely.\n\n```python\n# This line does nothing\nprint(\"but this line runs\")   # comments can go at the end too\n```\n\nAnything after a `#` on a line is a comment.\n\n## Why bother?\n\nBecause code tells you *what* it does, and never *why*. Six months from now you\nwill read your own code and wonder why you did something. A short comment saves\nyou.\n\n```python\n# Tax rate is 11% for this country, not the usual 10%\ntax = 0.11\n```\n\nThat comment carries information the code cannot.\n\n> **Don't** narrate the obvious. `# increment x by 1` above `x = x + 1` is noise.\n> Explain the reason, not the action.",
+      "exercise": {
+        "prompt": "Add a comment on the first line, then print: done",
+        "starter": "# write your comment here\n",
+        "expected": "done"
+      }
+    },
+    {
+      "id": "errors",
+      "chapter": "Getting Started",
+      "title": "Errors Are Normal",
+      "body": "# Errors Are Normal\n\nEvery programmer sees errors all day. They are not punishment, they are Python\ntelling you where it got confused.\n\n```python\nprint(\"hello\"\n```\n\n```\nSyntaxError: '(' was never closed\n```\n\nPython read the line, noticed the opening `(` was never closed, and stopped.\nThe fix is a `)`.\n\n## Reading an error message\n\nErrors are written **bottom up**. The last line is the most important -- it is\nthe actual problem. The lines above it are the trail of *where* it happened.\n\nA very common one:\n\n```python\nprint(greeting)\n```\n\n```\nNameError: name 'greeting' is not defined\n```\n\nPython is saying: \"you used a name I have never been told about.\" Usually it is\na typo, or you forgot to create the variable first.\n\n> When you hit an error, read the **last line first**, then look at the line\n> number Python gives you.",
+      "exercise": {
+        "prompt": "This code has a mistake. Fix it so it prints: fixed",
+        "starter": "print(\"fixed\"\n",
+        "expected": "fixed"
+      }
+    },
+    {
+      "id": "variables",
+      "chapter": "Variables and Data",
+      "title": "Variables",
+      "body": "# Variables\n\nA variable is a name pointing at a value. You create one with `=`.\n\n```python\nname = \"Ada\"\nage = 36\nprint(name)\n```\n\n```\nAda\n```\n\n`=` means \"store this on the right into the name on the left.\" It is **not**\n\"equals\" like in math. That is why this works:\n\n```python\nscore = 10\nscore = score + 5   # take score, add 5, store it back\nprint(score)        # 15\n```\n\nRead that as: *look up score (10), add 5, put the result back into score.*\n\n## Naming rules\n\n- Letters, numbers and underscores only. No spaces.\n- Cannot start with a number. `2fast` is invalid, `fast2` is fine.\n- Case matters: `Name` and `name` are two different variables.\n\nGood names describe the value: `user_count` beats `x`. You will read the name\nfar more often than you type it.",
+      "exercise": {
+        "prompt": "Create a variable `city` set to Tokyo, then print it.",
+        "starter": "",
+        "expected": "Tokyo"
+      }
+    },
+    {
+      "id": "numbers",
+      "chapter": "Variables and Data",
+      "title": "Numbers and Math",
+      "body": "# Numbers and Math\n\nPython does arithmetic with the symbols you already know:\n\n| Symbol | Meaning | Example | Result |\n|---|---|---|---|\n| `+` | add | `7 + 2` | `9` |\n| `-` | subtract | `7 - 2` | `5` |\n| `*` | multiply | `7 * 2` | `14` |\n| `/` | divide | `7 / 2` | `3.5` |\n| `//` | divide, drop remainder | `7 // 2` | `3` |\n| `%` | remainder | `7 % 2` | `1` |\n| `**` | power | `7 ** 2` | `49` |\n\n## Two kinds of number\n\n- **int** -- whole numbers: `1`, `42`, `-7`\n- **float** -- decimals: `3.5`, `0.1`\n\nDivision with `/` **always** gives a float, even when it divides evenly:\n`10 / 2` is `5.0`, not `5`. Use `//` when you want a whole number.\n\n## Order of operations\n\nSame as maths: `*` and `/` happen before `+` and `-`. Use parentheses to be\nexplicit.\n\n```python\nprint(2 + 3 * 4)     # 14\nprint((2 + 3) * 4)   # 20\n```",
+      "exercise": {
+        "prompt": "Print the result of 17 divided by 5 using the // operator (whole-number division).",
+        "starter": "",
+        "expected": "3"
+      }
+    },
+    {
+      "id": "strings",
+      "chapter": "Variables and Data",
+      "title": "Strings",
+      "body": "# Strings\n\nA string is text. It goes in quotes -- single `'` or double `\"` both work.\n\n```python\nfirst = \"Grace\"\nlast = 'Hopper'\n```\n\n## Joining strings\n\n`+` sticks strings together:\n\n```python\nfull = first + \" \" + last\nprint(full)   # Grace Hopper\n```\n\nYou cannot add a string to a number. This is an error:\n\n```python\nprint(\"age: \" + 36)   # TypeError\n```\n\nThat is Python protecting you from producing nonsense. Convert first with\n`str()`:\n\n```python\nprint(\"age: \" + str(36))   # age: 36\n```\n\n## Useful string methods\n\nMethods are actions attached to a value with a dot.\n\n```python\nword = \"Python\"\nprint(word.upper())      # PYTHON\nprint(word.lower())      # python\nprint(len(word))         # 6\nprint(word[0])           # P\n```\n\n`len()` counts characters. `word[0]` takes the **first** character -- counting\nstarts at 0, not 1. That trips up everyone once; you will get used to it.",
+      "exercise": {
+        "prompt": "Take the string `greeting = \"hello\"` and print it in uppercase.",
+        "starter": "greeting = \"hello\"\n",
+        "expected": "HELLO"
+      }
+    },
+    {
+      "id": "fstrings",
+      "chapter": "Variables and Data",
+      "title": "f-strings",
+      "body": "# f-strings\n\nBuilding strings with `+` and `str()` gets ugly fast. An f-string is cleaner:\nput an `f` before the quote and wrap variables in curly braces.\n\n```python\nname = \"Ada\"\nage = 36\nprint(f\"{name} is {age} years old\")\n```\n\n```\nAda is 36 years old\n```\n\nInside the braces Python runs real code, so you can calculate:\n\n```python\nprice = 20\nprint(f\"Total: {price * 1.1}\")\n```\n\n```\nTotal: 22.0\n```\n\n## Formatting numbers\n\nDecimals can be messy: `22.000000000000004`. Control them with `:.2f`, meaning\n\"two digits after the point\":\n\n```python\nprint(f\"Total: {price * 1.1:.2f}\")\n```\n\n```\nTotal: 22.00\n```\n\n> This is the single most useful formatting trick in Python. Reach for it\n> whenever you print money.",
+      "exercise": {
+        "prompt": "Set item = \"coffee\" and cost = 3, then print: coffee costs 3 dollars",
+        "starter": "item = \"coffee\"\ncost = 3\n",
+        "expected": "coffee costs 3 dollars"
+      }
+    },
+    {
+      "id": "input",
+      "chapter": "Variables and Data",
+      "title": "Reading Numbers",
+      "body": "# Reading Numbers\n\nThe exercise box gives you no keyboard input, so we practice the part that\nactually trips people up: **converting types**.\n\n`input()` always returns a **string**, even when the user types `42`. So this\nis a bug:\n\n```python\nage = input(\"Age: \")   # \"42\", a string\nprint(age + 1)         # TypeError\n```\n\nFix it by converting with `int()`:\n\n```python\nage = int(input(\"Age: \"))\nprint(age + 1)\n```\n\n## The two converters\n\n```python\nint(\"42\")     # 42      text to whole number\nfloat(\"3.5\")  # 3.5     text to decimal\nstr(42)       # \"42\"    number to text\n```\n\nIf the text is not a number, `int()` raises `ValueError`. That is expected --\nreal programs check for it.",
+      "exercise": {
+        "prompt": "The text \\\"8\\\" needs to become a number. Set n = 8 by converting the string, then print n + 2",
+        "starter": "n = \"8\"\n",
+        "expected": "10"
+      }
+    },
+    {
+      "id": "booleans",
+      "chapter": "Making Decisions",
+      "title": "Booleans",
+      "body": "# Booleans\n\nA boolean is either `True` or `False`. Note the capital letters -- `true` is\nnot valid Python.\n\nYou rarely type booleans directly. You get them from comparisons:\n\n```python\nprint(5 > 3)     # True\nprint(5 < 3)     # False\nprint(5 == 3)    # False\nprint(5 != 3)    # True\n```\n\n⚠️ `==` compares. `=` assigns. Mixing these up is the most common beginner bug.\n\n```python\nx = 5     # store 5 in x\nx == 5    # ask: is x equal to 5?\n```\n\n## Combining conditions\n\n`and`, `or`, `not`:\n\n```python\nage = 20\nhas_ticket = True\n\nprint(age >= 18 and has_ticket)   # True\nprint(age < 18 or has_ticket)     # True\nprint(not has_ticket)             # False\n```\n\n- `and` -- both must be true\n- `or` -- at least one must be true\n- `not` -- flips it",
+      "exercise": {
+        "prompt": "Print the result of checking whether 10 is greater than 3.",
+        "starter": "",
+        "expected": "True"
+      }
+    },
+    {
+      "id": "if",
+      "chapter": "Making Decisions",
+      "title": "if and else",
+      "body": "# if and else\n\n`if` runs code only when a condition is true.\n\n```python\ntemperature = 30\n\nif temperature > 25:\n    print(\"hot\")\n```\n\n```\nhot\n```\n\n## Indentation is the syntax\n\nThe four spaces before `print` are not decoration -- they are how Python knows\nwhich lines belong inside the `if`. Every line indented the same amount is part\nof the same block.\n\n```python\nif temperature > 25:\n    print(\"hot\")\n    print(\"wear shorts\")\nprint(\"done\")          # not indented, so always runs\n```\n\n## else\n\n`else` covers \"everything other than the if\":\n\n```python\nif temperature > 25:\n    print(\"hot\")\nelse:\n    print(\"not hot\")\n```\n\nExactly one of the two branches runs. Never both.",
+      "exercise": {
+        "prompt": "Set score = 75. If score is 60 or more, print pass, otherwise print fail.",
+        "starter": "score = 75\n",
+        "expected": "pass"
+      }
+    },
+    {
+      "id": "elif",
+      "chapter": "Making Decisions",
+      "title": "elif",
+      "body": "# elif\n\n`elif` means \"else, if\". It lets you check several conditions in order and stop\nat the first one that matches.\n\n```python\nscore = 85\n\nif score >= 90:\n    print(\"A\")\nelif score >= 80:\n    print(\"B\")\nelif score >= 70:\n    print(\"C\")\nelse:\n    print(\"F\")\n```\n\n```\nB\n```\n\n## Order matters\n\nPython checks top to bottom and stops at the **first** true condition. Because\nof that, `score >= 80` was enough -- we did not need `80 <= score < 90`.\n\nReversing the order breaks it:\n\n```python\nif score >= 70:\n    print(\"C\")\nelif score >= 90:\n    print(\"A\")    # never reached: 85 already matched >= 70\n```\n\nWrite conditions from most specific to least.\n\n> One `if` chain runs **at most one** branch. If you want several independent\n> checks, use separate `if` statements instead.",
+      "exercise": {
+        "prompt": "Set n = 0. Print positive if n > 0, negative if n < 0, otherwise print zero.",
+        "starter": "n = 0\n",
+        "expected": "zero"
+      }
+    },
+    {
+      "id": "for",
+      "chapter": "Loops",
+      "title": "for and range",
+      "body": "# for and range\n\nA loop repeats code. `for` repeats once for each item in a sequence.\n\n```python\nfor i in range(3):\n    print(i)\n```\n\n```\n0\n1\n2\n```\n\n`range(3)` produces `0, 1, 2`. It starts at 0 and stops **before** 3. That\n\"stops before\" is consistent everywhere in Python and worth memorising.\n\n## Counting from 1\n\n```python\nfor i in range(1, 4):\n    print(i)\n```\n\n```\n1\n2\n3\n```\n\n`range(start, stop)` -- start included, stop excluded.\n\n## Looping over text\n\n```python\nfor letter in \"abc\":\n    print(letter)\n```\n\n```\na\nb\nc\n```\n\nThe variable name (`i`, `letter`) is yours to choose. Pick something that says\nwhat one item is.",
+      "exercise": {
+        "prompt": "Print the numbers 1 to 4, one per line, using a for loop.",
+        "starter": "",
+        "expected": "1\n2\n3\n4"
+      }
+    },
+    {
+      "id": "while",
+      "chapter": "Loops",
+      "title": "while",
+      "body": "# while\n\n`while` repeats **as long as** a condition stays true. Use it when you do not\nknow in advance how many times you need to loop.\n\n```python\ncount = 0\nwhile count < 3:\n    print(count)\n    count = count + 1\n```\n\n```\n0\n1\n2\n```\n\n## The line that changes the condition\n\nLook at `count = count + 1`. Without it, `count` stays `0`, the condition stays\ntrue, and the loop never ends -- an **infinite loop**. Your program hangs and\nyou Ctrl+C to escape.\n\nEvery `while` loop needs something inside it that eventually makes the\ncondition false. If you write a `while` and it hangs, that is the first thing to\ncheck.\n\n> The exercise box kills any program after 5 seconds, so an accidental infinite\n> loop here costs you a few seconds and a timeout message.",
+      "exercise": {
+        "prompt": "Use a while loop to print the numbers 3, 2, 1 (counting down).",
+        "starter": "n = 3\n",
+        "expected": "3\n2\n1"
+      }
+    },
+    {
+      "id": "break",
+      "chapter": "Loops",
+      "title": "break and continue",
+      "body": "# break and continue\n\nTwo words change how a loop behaves from inside.\n\n**`break`** leaves the loop immediately:\n\n```python\nfor i in range(10):\n    if i == 3:\n        break\n    print(i)\n```\n\n```\n0\n1\n2\n```\n\n**`continue`** skips the rest of this round and goes to the next:\n\n```python\nfor i in range(5):\n    if i == 2:\n        continue\n    print(i)\n```\n\n```\n0\n1\n3\n4\n```\n\n## Which one?\n\n- `break` -- \"I found what I needed, stop looking.\"\n- `continue` -- \"Not this one, skip to the next.\"\n\n> Use them sparingly. A loop with three `break`s is hard to follow. Often an\n> `if` around the work does the same thing more clearly.",
+      "exercise": {
+        "prompt": "Loop 1 to 10, but stop (break) as soon as you reach 4. Print each number before checking.",
+        "starter": "",
+        "expected": "1\n2\n3"
+      }
+    },
+    {
+      "id": "lists",
+      "chapter": "Lists",
+      "title": "Lists",
+      "body": "# Lists\n\nA list holds many values in order, in one variable. Square brackets, items\nseparated by commas.\n\n```python\nfruits = [\"apple\", \"banana\", \"cherry\"]\nprint(fruits)\n```\n\n```\n['apple', 'banana', 'cherry']\n```\n\n## Getting one item out\n\nIndexing starts at **0**, so the first item is `fruits[0]`:\n\n```python\nprint(fruits[0])    # apple\nprint(fruits[2])    # cherry\n```\n\nNegative numbers count from the end, which is handy:\n\n```python\nprint(fruits[-1])   # cherry\n```\n\n## Leaving one out\n\nUseful when you read indices out loud as \"from 0, up to but not including 2\":\n\n```python\nprint(fruits[0:2])   # ['apple', 'banana']\n```\n\n## How many?\n\n```python\nprint(len(fruits))   # 3\n```\n\n> Lists can hold any mix of types, including other lists. They are far more\n> flexible than arrays in older languages.",
+      "exercise": {
+        "prompt": "From colors = [\"red\", \"green\", \"blue\"], print the second item (green).",
+        "starter": "colors = [\"red\", \"green\", \"blue\"]\n",
+        "expected": "green"
+      }
+    },
+    {
+      "id": "listops",
+      "chapter": "Lists",
+      "title": "Changing Lists",
+      "body": "# Changing Lists\n\nLists are **mutable** -- you can change them after creating them.\n\n## Add to the end\n\n```python\ntasks = [\"write\", \"test\"]\ntasks.append(\"ship\")\nprint(tasks)\n```\n\n```\n['write', 'test', 'ship']\n```\n\n## Replace an item\n\nAssign to an index:\n\n```python\ntasks[0] = \"draft\"\nprint(tasks[0])    # draft\n```\n\n## Remove\n\n```python\ntasks.remove(\"test\")   # removes by value\nlast = tasks.pop()     # removes and returns the last item\n```\n\n## Empty list, then build it\n\nA very common pattern -- start empty and accumulate:\n\n```python\nsquares = []\nfor n in range(1, 4):\n    squares.append(n * n)\nprint(squares)\n```\n\n```\n[1, 4, 9]\n```\n\nThat \"empty list plus append in a loop\" shape shows up constantly in real code.",
+      "exercise": {
+        "prompt": "Start with nums = [], append 1, 2, 3 in a loop, then print the list.",
+        "starter": "nums = []\n",
+        "expected": "[1, 2, 3]"
+      }
+    },
+    {
+      "id": "listloop",
+      "chapter": "Lists",
+      "title": "Looping Over Lists",
+      "body": "# Looping Over Lists\n\nThe most common list operation: do something to every item.\n\n```python\nprices = [4, 10, 7]\ntotal = 0\n\nfor price in prices:\n    total = total + price\n\nprint(total)      # 21\n```\n\nNotice `for price in prices` -- no `range`, no indices. You get each item\ndirectly. This is the idiomatic form in Python; prefer it.\n\n## Counting a total\n\nThat `total = 0` then `total = total + price` shape is called an accumulator.\nIt is the standard way to total, count, or collect things in a loop.\n\n## With an index, if you really need one\n\n```python\nfor i, price in enumerate(prices):\n    print(f\"{i}: {price}\")\n```\n\n```\n0: 4\n1: 10\n2: 7\n```\n\nUse `enumerate()` when you need both the position and the value. Otherwise the\nplain `for item in list` is cleaner.",
+      "exercise": {
+        "prompt": "Given nums = [2, 4, 6], loop over it and print the total: 12",
+        "starter": "nums = [2, 4, 6]\ntotal = 0\n",
+        "expected": "12"
+      }
+    },
+    {
+      "id": "def",
+      "chapter": "Functions",
+      "title": "Functions",
+      "body": "# Functions\n\nA function is a named block of code you can run whenever you want, as many\ntimes as you want.\n\n```python\ndef greet():\n    print(\"Hello!\")\n\ngreet()\ngreet()\n```\n\n```\nHello!\nHello!\n```\n\nLine by line:\n\n- `def` says \"I am defining a function\"\n- `greet` is the name\n- `()` is where inputs will go (none here)\n- `:` ends the header\n- the indented body is what runs when called\n\n**Defining a function does not run it.** Nothing happens until you write\n`greet()`. This confuses people constantly -- if your function \"does nothing\",\ncheck you actually called it.\n\n## Why use them?\n\nBecause the alternative is copy-pasting the same lines everywhere. Then you fix\na bug in one copy and forget the other three. Write it once, call it everywhere.",
+      "exercise": {
+        "prompt": "Define a function named hello that prints hi, then call it once.",
+        "starter": "",
+        "expected": "hi"
+      }
+    },
+    {
+      "id": "params",
+      "chapter": "Functions",
+      "title": "Parameters and return",
+      "body": "# Parameters and return\n\n## Parameters: giving the function data\n\n```python\ndef greet(name):\n    print(f\"Hello, {name}!\")\n\ngreet(\"Ada\")\ngreet(\"Grace\")\n```\n\n```\nHello, Ada!\nHello, Grace!\n```\n\n`name` is a **parameter** -- a variable that gets whatever you passed in.\n`\"Ada\"` is the **argument** -- the actual value.\n\n## return: giving data back\n\n`print` shows a value on screen. `return` hands it back to the caller so it can\nbe used.\n\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(2, 3)\nprint(result * 10)    # 50\n```\n\n## print vs return -- the big one\n\n```python\ndef add_print(a, b):\n    print(a + b)       # shows 5, returns None\n\ndef add_return(a, b):\n    return a + b       # returns 5\n```\n\nIf you `print` inside a function, the caller gets `None` -- nothing usable.\nBeginners lose hours to this. **Use `return` when the caller needs the value.**\n\nA function hits `return` and stops immediately; nothing after it runs.",
+      "exercise": {
+        "prompt": "Write a function square(n) that returns n squared, then print square(5).",
+        "starter": "",
+        "expected": "25"
+      }
+    },
+    {
+      "id": "final",
+      "chapter": "Functions",
+      "title": "Putting It Together",
+      "body": "# Putting It Together\n\nTime to combine everything: a function that loops over a list and returns a\nvalue.\n\n```python\ndef total(prices):\n    result = 0\n    for price in prices:\n        result = result + price\n    return result\n\nprint(total([3, 5, 2]))   # 10\n```\n\nRead it as a sentence: *\"to total a list of prices: start at 0, add each one,\nhand back the result.\"*\n\n## A slightly bigger example\n\n```python\ndef average(numbers):\n    if len(numbers) == 0:\n        return 0\n    return total(numbers) / len(numbers)\n\nprint(average([3, 5, 2]))    # 3.3333333333333335\nprint(f\"{average([3, 5, 2]):.2f}\")   # 3.33\n```\n\nTwo things worth noticing:\n\n1. The **guard clause**: `if len(numbers) == 0` returns early. Dividing by zero\n   would crash, so we handle the empty case first. Checking odd inputs at the\n   top of a function is a habit worth building.\n2. Functions calling functions. `average` uses `total`. Small pieces, stacked.\n\n## Where you go next\n\nYou now know variables, types, conditions, loops, lists and functions. That is\ngenuinely most of the language. Real next steps:\n\n- Dictionaries -- key/value storage\n- Reading and writing files\n- `try` / `except` for handling errors\n- Installing packages with `pip`\n- Classes, when you meet code that needs them\n\nPick a small annoying task you do by hand and automate it. That teaches more\nthan any tutorial.",
+      "exercise": {
+        "prompt": "Write a function biggest(nums) that returns the largest number in a list (do not use max()), then print biggest([4, 9, 2]).",
+        "starter": "",
+        "expected": "9"
+      }
+    }
+  ]
+}
