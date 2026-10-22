@@ -1,0 +1,12 @@
+{
+  "name": "learn-python-course",
+  "private": true,
+  "type": "module",
+  "description": "Dev-only test tooling for the lesson player. The app itself has no dependencies.",
+  "scripts": {
+    "test": "bun tests/dom.test.mjs"
+  },
+  "devDependencies": {
+    "happy-dom": "^21.0.4"
+  }
+}

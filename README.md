@@ -67,8 +67,15 @@ style.css                   dark theme
 server.py                   static server + code-check API (stdlib only)
 content/lessons.json        the lessons
 content/build_lessons.py    lesson source + self-test generator
-content/e2e_test.py         end-to-end test of the running server
+content/e2e_test.py         API test of the running server
+tests/dom.test.mjs          browser test (clicks the real buttons)
+tests/run.sh                runs everything
+package.json                dev-only; happy-dom for the browser test
 ```
+
+The app has **zero runtime dependencies**. `package.json` exists only so the
+browser test can pull in `happy-dom`; nothing in `index.html`, `app.js` or
+`server.py` needs it.
 
 ## Adding or editing lessons
 
@@ -114,16 +121,33 @@ a lesson and break its solution, the build tells you which one.
 
 ## Testing
 
-With the server running:
+One command, from the repo root:
 
 ```bash
-python3 content/e2e_test.py
+./tests/run.sh
 ```
 
-It submits every lesson's solution through the real HTTP API, confirms wrong
-answers are rejected, checks that every published solution passes its own
-exercise, and verifies infinite loops are killed, output is capped, file
-scenarios behave, and path traversal is refused.
+It builds the lessons (which verifies every reference solution), starts a
+server, runs the API tests, runs the browser tests, and shuts the server down.
+
+To run the pieces separately, with `python3 server.py` already running:
+
+```bash
+python3 content/e2e_test.py        # API + execution safety
+bun tests/dom.test.mjs             # browser behaviour
+```
+
+The API test submits every lesson's solution through the real HTTP API,
+confirms wrong answers are rejected, checks that each published solution passes
+its own exercise, and verifies that infinite loops are killed, output is capped,
+file scenarios behave, and path traversal is refused.
+
+The browser test loads the real `index.html` and `app.js` in a headless DOM and
+clicks the actual buttons: hints reveal one at a time, the solution modal opens,
+fills the editor and closes, submitting the published solution passes, wrong
+answers are rejected, navigating resets per-lesson state, and the keyboard
+shortcuts work. It needs `bun` and a one-time `bun install`; without either,
+`run.sh` skips it and says so.
 
 ## ⚠️ Security
 
