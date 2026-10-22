@@ -18,6 +18,15 @@ const el = {
   exercise: document.getElementById('exercise'),
   prompt: document.getElementById('exercise-prompt'),
   files: document.getElementById('exercise-files'),
+  hints: document.getElementById('hints'),
+  hintBtn: document.getElementById('hint-btn'),
+  solutionBtn: document.getElementById('solution-btn'),
+  solutionModal: document.getElementById('solution-modal'),
+  solutionCode: document.getElementById('solution-code'),
+  solutionCopy: document.getElementById('solution-copy'),
+  solutionUse: document.getElementById('solution-use'),
+  solutionClose: document.getElementById('solution-close'),
+  solutionDismiss: document.getElementById('solution-dismiss'),
   code: document.getElementById('code'),
   output: document.getElementById('output'),
   runBtn: document.getElementById('run-btn'),
@@ -203,6 +212,7 @@ function renderLesson() {
     el.output.hidden = true;
     el.output.textContent = '';
     el.output.className = 'output';
+    resetHints(ex);
     renderFiles(ex.files);
   } else {
     el.exercise.hidden = true;
@@ -239,6 +249,66 @@ function go(index) {
   if (index < 0 || index >= state.lessons.length) return;
   state.index = index;
   renderLesson();
+}
+
+// ---------- hints and solutions ----------
+
+let hintsShown = 0;
+
+function resetHints(exercise) {
+  hintsShown = 0;
+  el.hints.innerHTML = '';
+  el.hints.hidden = true;
+  const total = (exercise.hints ?? []).length;
+  el.hintBtn.hidden = total === 0;
+  el.hintBtn.textContent = total > 1 ? `Hint (${total})` : 'Hint';
+  el.hintBtn.disabled = total === 0;
+  el.solutionBtn.hidden = !exercise.solution;
+}
+
+function showNextHint() {
+  const lesson = state.lessons[state.index];
+  const hints = lesson?.exercise?.hints ?? [];
+  if (hintsShown >= hints.length) return;
+
+  if (hintsShown === 0) {
+    el.hints.hidden = false;
+    el.hints.innerHTML = '<div class="hints-label">Hints</div>';
+  }
+
+  const item = document.createElement('div');
+  item.className = 'hint-item';
+  item.innerHTML = `<span class="hint-num">${hintsShown + 1}</span>` +
+    `<span>${escapeHtml(hints[hintsShown])}</span>`;
+  el.hints.appendChild(item);
+  hintsShown++;
+
+  const left = hints.length - hintsShown;
+  el.hintBtn.textContent = left > 0 ? `Hint (${left} left)` : 'No more hints';
+  el.hintBtn.disabled = left === 0;
+}
+
+function openSolution() {
+  const lesson = state.lessons[state.index];
+  const solution = lesson?.exercise?.solution;
+  if (!solution) return;
+  el.solutionCode.textContent = solution;
+  el.solutionModal.hidden = false;
+  el.solutionClose.focus();
+}
+
+function closeSolution() {
+  el.solutionModal.hidden = true;
+}
+
+async function copySolution() {
+  try {
+    await navigator.clipboard.writeText(el.solutionCode.textContent);
+    el.solutionCopy.textContent = 'Copied';
+  } catch {
+    el.solutionCopy.textContent = 'Copy failed';
+  }
+  setTimeout(() => { el.solutionCopy.textContent = 'Copy'; }, 1500);
 }
 
 // ---------- code checking ----------
@@ -341,6 +411,19 @@ async function boot() {
   el.nextBtn.addEventListener('click', () => go(state.index + 1));
   el.runBtn.addEventListener('click', runCode);
   el.submitBtn.addEventListener('click', submitCode);
+  el.hintBtn.addEventListener('click', showNextHint);
+  el.solutionBtn.addEventListener('click', openSolution);
+  el.solutionClose.addEventListener('click', closeSolution);
+  el.solutionDismiss.addEventListener('click', closeSolution);
+  el.solutionCopy.addEventListener('click', copySolution);
+  el.solutionUse.addEventListener('click', () => {
+    el.code.value = el.solutionCode.textContent;
+    closeSolution();
+    el.code.focus();
+  });
+  el.solutionModal.addEventListener('click', e => {
+    if (e.target === el.solutionModal) closeSolution();
+  });
   el.resetBtn.addEventListener('click', () => {
     const lesson = state.lessons[state.index];
     if (lesson?.exercise) el.code.value = lesson.exercise.starter ?? '';
@@ -348,9 +431,11 @@ async function boot() {
   el.menuBtn.addEventListener('click', () => el.sidebar.classList.toggle('collapsed'));
 
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !el.solutionModal.hidden) { closeSolution(); return; }
     if (e.ctrlKey && e.key === ',') { e.preventDefault(); go(state.index - 1); }
     if (e.ctrlKey && e.key === '.') { e.preventDefault(); go(state.index + 1); }
     if (e.ctrlKey && e.key === 'Enter' && !el.exercise.hidden) { e.preventDefault(); submitCode(); }
+    if (e.ctrlKey && e.key === 'h' && !el.exercise.hidden) { e.preventDefault(); showNextHint(); }
   });
 
   // Tabbing inside the code box should indent, not leave the field.

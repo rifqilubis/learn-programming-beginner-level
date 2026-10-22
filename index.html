@@ -44,8 +44,11 @@
       <div class="exercise-actions">
         <button class="btn btn-ghost" id="run-btn">Run</button>
         <button class="btn btn-primary" id="submit-btn">Submit</button>
+        <button class="btn btn-ghost" id="hint-btn">Hint</button>
+        <button class="btn btn-ghost" id="solution-btn">Show solution</button>
         <button class="btn btn-ghost" id="reset-btn">Reset</button>
       </div>
+      <div class="hints" id="hints" hidden></div>
       <pre class="output" id="output" hidden></pre>
     </section>
 
@@ -55,6 +58,25 @@
     </footer>
   </div>
 </main>
+
+<div class="modal" id="solution-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="solution-title">
+    <div class="modal-head">
+      <span id="solution-title">One possible solution</span>
+      <button class="icon-btn" id="solution-close" aria-label="Close">&times;</button>
+    </div>
+    <p class="modal-note">
+      There are many correct answers. If yours differs but passes, yours is fine.
+      Try to read this until it makes sense rather than pasting it in.
+    </p>
+    <pre class="modal-code" id="solution-code"></pre>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="solution-dismiss">Close</button>
+      <button class="btn btn-ghost" id="solution-copy">Copy</button>
+      <button class="btn btn-primary" id="solution-use">Put in editor</button>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

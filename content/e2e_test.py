@@ -98,6 +98,21 @@ r = post("/api/run", {"code": 'print(open("sub/x.txt").read().strip())', "files"
 if r.get("stdout", "").strip() != "deep":
     fails.append(("nested-file", f"nested seed failed: {r}"))
 
+# --- every published solution must be correct and pass its own exercise ---
+for lesson in lessons:
+    ex = lesson.get("exercise")
+    if not ex:
+        continue
+    sol = ex.get("solution")
+    if not sol:
+        fails.append((lesson["id"], "no solution published"))
+        continue
+    r = post("/api/check", {"code": sol, "expected": ex["expected"], "files": ex.get("files") or {}})
+    if not r.get("passed"):
+        fails.append((lesson["id"], f"published solution fails its own exercise: {r}"))
+    if not ex.get("hints"):
+        fails.append((lesson["id"], "no hints published"))
+
 if fails:
     for name, why in fails:
         print(f"FAIL {name}: {why}")
@@ -108,3 +123,4 @@ print("PASS: wrong answers rejected")
 print("PASS: infinite loop killed, output capped, hard-exit survived")
 print("PASS: file seeding, temp-dir isolation, no leaks between runs")
 print("PASS: path traversal refused, nested paths allowed")
+print("PASS: every published solution passes, every exercise has hints")

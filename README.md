@@ -47,10 +47,15 @@ chapters, edit `CHAPTER_ORDER` in `content/build_lessons.py`.
 - **Markdown lessons** — headings, tables, code blocks, callouts
 - **Python syntax highlighting** — hand-written, no library
 - **Exercise box** that runs your code and compares output to the expected answer
+- **Progressive hints** — the Hint button reveals one nudge at a time, so you get
+  unstuck without being handed the answer
+- **Show solution** — a modal with one working solution, plus buttons to copy it
+  or drop it into the editor
 - **File exercises** — some lessons ship a real file (`notes.txt`, `sales.txt`)
   that your code reads; it appears in a panel above the editor
 - **Progress saved** in `localStorage`, so it survives a refresh
-- **Keyboard shortcuts** — `ctrl+,` back, `ctrl+.` next, `ctrl+enter` submit
+- **Keyboard shortcuts** — `ctrl+,` back, `ctrl+.` next, `ctrl+enter` submit,
+  `ctrl+h` hint, `esc` close modal
 - Works on mobile (sidebar collapses)
 
 ## Files
@@ -83,14 +88,29 @@ lesson("reading", "Working with Files", "Reading Files", """
 }, 'with open("notes.txt") as f:\n    print(f.read().strip())')
 ```
 
+Hints live in a separate `HINTS` dict keyed by lesson id. Each entry is a list
+revealed one at a time, so the first nudge stays a nudge:
+
+```python
+HINTS = {
+    "reading": [
+        "The file already exists -- check the panel above the code box.",
+        "Use a with block around open(), then print what .read() returns.",
+    ],
+}
+```
+
+The reference solution you pass to `lesson()` becomes the code shown by
+**Show solution**, so it has to be correct — the build checks that it is.
+
 ```bash
 python3 content/build_lessons.py
 ```
 
 That command **verifies every reference solution** — it runs each one in a
 throwaway directory with its files seeded, and confirms the output matches what
-the exercise expects. If you edit a lesson and break its solution, the build
-fails and tells you which one.
+the exercise expects. It also fails if any lesson is missing hints. If you edit
+a lesson and break its solution, the build tells you which one.
 
 ## Testing
 
@@ -101,8 +121,9 @@ python3 content/e2e_test.py
 ```
 
 It submits every lesson's solution through the real HTTP API, confirms wrong
-answers are rejected, and checks that infinite loops are killed, output is
-capped, file scenarios behave, and path traversal is refused.
+answers are rejected, checks that every published solution passes its own
+exercise, and verifies infinite loops are killed, output is capped, file
+scenarios behave, and path traversal is refused.
 
 ## ⚠️ Security
 

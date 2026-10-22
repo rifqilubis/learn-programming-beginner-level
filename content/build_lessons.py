@@ -2030,6 +2030,168 @@ print({n: n * n for n in range(1, 4)})
 }, 'print([n * n for n in range(1, 4)])')
 
 
+# Progressive hints, keyed by lesson id. Each entry is a list; the Hint button
+# reveals them one at a time, so the first nudge stays a nudge.
+HINTS = {
+    "welcome": [
+        "One line of code is enough for this one.",
+        "Call print() and put the text inside the brackets, in quotes.",
+    ],
+    "print": [
+        "Each print() call produces one line of output.",
+        "You need three separate print() calls, one for each word.",
+    ],
+    "comments": [
+        "Any line starting with # is ignored by Python.",
+        "Keep the print() line you were given and add a # comment above it.",
+    ],
+    "errors": [
+        "Count the brackets on that line. Something is unbalanced.",
+        "There is an opening ( with no closing ). Add the ) at the end.",
+    ],
+    "variables": [
+        "Create the variable first, then print the variable -- not the text.",
+        'Assign a string like city = "Tokyo", then print(city).',
+    ],
+    "numbers": [
+        "The // operator divides and throws away the remainder.",
+        "Wrap the whole expression inside print() so you can see the result.",
+    ],
+    "strings": [
+        ".upper() is a method -- it hangs off the value with a dot.",
+        "Methods return a new string, so print the result of calling it.",
+    ],
+    "fstrings": [
+        "Put an f right before the opening quote, then wrap variables in curly braces.",
+        'The fixed words between the values are " costs " and " dollars".',
+    ],
+    "input": [
+        "n is currently text, not a number. Convert it first.",
+        "int() turns a string of digits into a real whole number.",
+    ],
+    "splitjoin": [
+        "split() with no argument breaks the string on whitespace and gives a list.",
+        "len() of that list is the number of words.",
+    ],
+    "strmethods": [
+        "strip() removes whitespace from both ends of a string.",
+        "It returns a new string, so print the result.",
+    ],
+    "slicing": [
+        "Slicing is [start:stop], and the stop index is excluded.",
+        "word[:3] means from the beginning up to, but not including, index 3.",
+    ],
+    "booleans": [
+        "A comparison like > produces a boolean value.",
+        "Wrap the comparison inside print() to display it.",
+    ],
+    "if": [
+        "Compare score to 60 using >= so 60 itself counts as a pass.",
+        "Do not forget the colon after the condition and the indent inside.",
+    ],
+    "elif": [
+        "Check > 0 first, then < 0, and let else catch everything left.",
+        "Zero is neither positive nor negative, so it falls to else.",
+    ],
+    "for": [
+        "range(start, stop) includes start and excludes stop.",
+        "To print up to 4 you need range(1, 5).",
+    ],
+    "while": [
+        "Print the number first, then decrease it.",
+        "The loop should keep going while n is greater than 0.",
+    ],
+    "break": [
+        "Check whether you have reached 4 before printing it.",
+        "The break must come before the print, or 4 gets printed first.",
+    ],
+    "nested": [
+        "The outer loop controls rows; the inner loop builds one row.",
+        "Build a string inside the inner loop, then print it once after that loop.",
+    ],
+    "enumzip": [
+        "zip() walks two lists in step, pairing up items.",
+        "Unpack each pair in the for line: for name, age in zip(...).",
+    ],
+    "comprehensions": [
+        "The shape is [expression for item in sequence].",
+        "The expression is n * n and the sequence is range(1, 4).",
+    ],
+    "lists": [
+        "Indexing starts at 0, not 1.",
+        "The second item therefore lives at index 1.",
+    ],
+    "listops": [
+        "append() adds a single item to the end of a list.",
+        "Loop over the values, append each one, then print the list.",
+    ],
+    "listloop": [
+        "Start total at 0 before the loop begins.",
+        "Add each item to total inside the loop, and print after it ends.",
+    ],
+    "tuples": [
+        "Python can swap two variables in a single line.",
+        "a, b = b, a builds a tuple on the right and unpacks it back.",
+    ],
+    "sets": [
+        "A set discards duplicates automatically when you create it.",
+        "len(set(nums)) gives you the count of unique values.",
+    ],
+    "whichcollection": [
+        "Turn both lists into sets, then & gives the values in both.",
+        "sorted() puts the result back in order so the output is predictable.",
+    ],
+    "dicts": [
+        "A dict literal is written {key: value}.",
+        "Read a value by putting the key in square brackets: capitals[\"France\"].",
+    ],
+    "dictcount": [
+        "counts.get(word, 0) + 1 counts without ever raising KeyError.",
+        "Then print the value stored under the key \"a\".",
+    ],
+    "dictloop": [
+        ".items() gives you the key and the value together.",
+        "Unpack them in the for line: for name, price in prices.items().",
+    ],
+    "def": [
+        "A function is def name(): followed by an indented body.",
+        "Defining it does nothing -- you also have to call hello().",
+    ],
+    "params": [
+        "Use return inside the function, not print.",
+        "Then print the result of calling square(5) from outside.",
+    ],
+    "final": [
+        "Start with the first item as your current best guess.",
+        "Loop the rest, replacing best whenever you find something larger.",
+    ],
+    "tryexcept": [
+        "Put only the risky line inside the try: block.",
+        "Catch ValueError specifically -- not a bare except.",
+    ],
+    "errors2": [
+        "items[0] is valid here, so the try block succeeds and prints x.",
+        "The except branch only runs if an IndexError actually happens.",
+    ],
+    "raising": [
+        "raise ValueError(...) stops the function immediately.",
+        "Return n when the check passes, then print check(5).",
+    ],
+    "reading": [
+        "The file already exists -- check the panel above the code box.",
+        "Use a with block around open(), then print what .read() returns.",
+    ],
+    "writing": [
+        "Each line needs its own \\n at the end.",
+        "Open the file a second time to read it back, then print it.",
+    ],
+    "filesum": [
+        "Loop over the lines of the file one at a time.",
+        "Every line is text, so convert with int() before adding it to total.",
+    ],
+}
+
+
 # ---------------------------------------------------------------- emit
 # Lessons are defined in whatever order is convenient; this list decides the
 # order they appear in the course. A chapter missing from here is appended last
@@ -2061,6 +2223,8 @@ def build():
         entry = {"id": id, "chapter": chapter, "title": title, "body": body}
         if exercise:
             entry["exercise"] = exercise
+            entry["exercise"]["hints"] = HINTS.get(id, [])
+            entry["exercise"]["solution"] = solution
         out.append(entry)
     return {"lessons": out}
 
@@ -2102,8 +2266,14 @@ def verify_solutions() -> None:
 if __name__ == "__main__":
     verify_solutions()
 
+    missing_hints = [i for i, *_r in L if i not in HINTS]
+    if missing_hints:
+        sys.exit(f"missing hints for: {', '.join(missing_hints)}")
+
     path = Path(__file__).parent / "lessons.json"
     path.write_text(json.dumps(build(), indent=2, ensure_ascii=False) + "\n", "utf-8")
     n_ex = sum(1 for x in L if x[4])
     n_files = sum(1 for x in L if x[4] and x[4].get("files"))
-    print(f"OK: {len(L)} lessons, {n_ex} exercises verified ({n_files} with files) -> {path}")
+    n_hints = sum(len(HINTS[i]) for i, *_r in L)
+    print(f"OK: {len(L)} lessons, {n_ex} exercises verified ({n_files} with files), "
+          f"{n_hints} hints -> {path}")

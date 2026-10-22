@@ -8,7 +8,12 @@
       "exercise": {
         "prompt": "Print exactly: Hello, world!",
         "starter": "# Type your code below\n",
-        "expected": "Hello, world!"
+        "expected": "Hello, world!",
+        "hints": [
+          "One line of code is enough for this one.",
+          "Call print() and put the text inside the brackets, in quotes."
+        ],
+        "solution": "print(\"Hello, world!\")"
       }
     },
     {
@@ -19,7 +24,12 @@
       "exercise": {
         "prompt": "Print three lines: Python, is, awesome",
         "starter": "print(\"Python\")\n",
-        "expected": "Python\nis\nawesome"
+        "expected": "Python\nis\nawesome",
+        "hints": [
+          "Each print() call produces one line of output.",
+          "You need three separate print() calls, one for each word."
+        ],
+        "solution": "print(\"Python\")\nprint(\"is\")\nprint(\"awesome\")"
       }
     },
     {
@@ -30,7 +40,12 @@
       "exercise": {
         "prompt": "Add a comment on the first line, then print: done",
         "starter": "# write your comment here\n",
-        "expected": "done"
+        "expected": "done",
+        "hints": [
+          "Any line starting with # is ignored by Python.",
+          "Keep the print() line you were given and add a # comment above it."
+        ],
+        "solution": "# a comment\nprint(\"done\")"
       }
     },
     {
@@ -41,7 +56,12 @@
       "exercise": {
         "prompt": "This code has a mistake. Fix it so it prints: fixed",
         "starter": "print(\"fixed\"\n",
-        "expected": "fixed"
+        "expected": "fixed",
+        "hints": [
+          "Count the brackets on that line. Something is unbalanced.",
+          "There is an opening ( with no closing ). Add the ) at the end."
+        ],
+        "solution": "print(\"fixed\")"
       }
     },
     {
@@ -52,7 +72,12 @@
       "exercise": {
         "prompt": "Create a variable `city` set to Tokyo, then print it.",
         "starter": "",
-        "expected": "Tokyo"
+        "expected": "Tokyo",
+        "hints": [
+          "Create the variable first, then print the variable -- not the text.",
+          "Assign a string like city = \"Tokyo\", then print(city)."
+        ],
+        "solution": "city = \"Tokyo\"\nprint(city)"
       }
     },
     {
@@ -63,7 +88,12 @@
       "exercise": {
         "prompt": "Print the result of 17 divided by 5 using the // operator (whole-number division).",
         "starter": "",
-        "expected": "3"
+        "expected": "3",
+        "hints": [
+          "The // operator divides and throws away the remainder.",
+          "Wrap the whole expression inside print() so you can see the result."
+        ],
+        "solution": "print(17 // 5)"
       }
     },
     {
@@ -74,7 +104,12 @@
       "exercise": {
         "prompt": "Take the string `greeting = \"hello\"` and print it in uppercase.",
         "starter": "greeting = \"hello\"\n",
-        "expected": "HELLO"
+        "expected": "HELLO",
+        "hints": [
+          ".upper() is a method -- it hangs off the value with a dot.",
+          "Methods return a new string, so print the result of calling it."
+        ],
+        "solution": "greeting = \"hello\"\nprint(greeting.upper())"
       }
     },
     {
@@ -85,7 +120,12 @@
       "exercise": {
         "prompt": "Set item = \"coffee\" and cost = 3, then print: coffee costs 3 dollars",
         "starter": "item = \"coffee\"\ncost = 3\n",
-        "expected": "coffee costs 3 dollars"
+        "expected": "coffee costs 3 dollars",
+        "hints": [
+          "Put an f right before the opening quote, then wrap variables in curly braces.",
+          "The fixed words between the values are \" costs \" and \" dollars\"."
+        ],
+        "solution": "item = \"coffee\"\ncost = 3\nprint(f\"{item} costs {cost} dollars\")"
       }
     },
     {
@@ -96,7 +136,12 @@
       "exercise": {
         "prompt": "The text \\\"8\\\" needs to become a number. Set n = 8 by converting the string, then print n + 2",
         "starter": "n = \"8\"\n",
-        "expected": "10"
+        "expected": "10",
+        "hints": [
+          "n is currently text, not a number. Convert it first.",
+          "int() turns a string of digits into a real whole number."
+        ],
+        "solution": "n = int(\"8\")\nprint(n + 2)"
       }
     },
     {
@@ -107,7 +152,12 @@
       "exercise": {
         "prompt": "Split the string \\\"a b c\\\" on whitespace and print how many words there are.",
         "starter": "text = \"a b c\"\n",
-        "expected": "3"
+        "expected": "3",
+        "hints": [
+          "split() with no argument breaks the string on whitespace and gives a list.",
+          "len() of that list is the number of words."
+        ],
+        "solution": "text = \"a b c\"\nprint(len(text.split()))"
       }
     },
     {
@@ -118,7 +168,12 @@
       "exercise": {
         "prompt": "Given s = \\\"  Hello  \\\", print s with the spaces stripped.",
         "starter": "s = \"  Hello  \"\n",
-        "expected": "Hello"
+        "expected": "Hello",
+        "hints": [
+          "strip() removes whitespace from both ends of a string.",
+          "It returns a new string, so print the result."
+        ],
+        "solution": "s = \"  Hello  \"\nprint(s.strip())"
       }
     },
     {
@@ -129,7 +184,12 @@
       "exercise": {
         "prompt": "Print the first three characters of the string python.",
         "starter": "word = \"python\"\n",
-        "expected": "pyt"
+        "expected": "pyt",
+        "hints": [
+          "Slicing is [start:stop], and the stop index is excluded.",
+          "word[:3] means from the beginning up to, but not including, index 3."
+        ],
+        "solution": "word = \"python\"\nprint(word[:3])"
       }
     },
     {
@@ -140,7 +200,12 @@
       "exercise": {
         "prompt": "Print the result of checking whether 10 is greater than 3.",
         "starter": "",
-        "expected": "True"
+        "expected": "True",
+        "hints": [
+          "A comparison like > produces a boolean value.",
+          "Wrap the comparison inside print() to display it."
+        ],
+        "solution": "print(10 > 3)"
       }
     },
     {
@@ -151,7 +216,12 @@
       "exercise": {
         "prompt": "Set score = 75. If score is 60 or more, print pass, otherwise print fail.",
         "starter": "score = 75\n",
-        "expected": "pass"
+        "expected": "pass",
+        "hints": [
+          "Compare score to 60 using >= so 60 itself counts as a pass.",
+          "Do not forget the colon after the condition and the indent inside."
+        ],
+        "solution": "score = 75\nif score >= 60:\n    print(\"pass\")\nelse:\n    print(\"fail\")"
       }
     },
     {
@@ -162,7 +232,12 @@
       "exercise": {
         "prompt": "Set n = 0. Print positive if n > 0, negative if n < 0, otherwise print zero.",
         "starter": "n = 0\n",
-        "expected": "zero"
+        "expected": "zero",
+        "hints": [
+          "Check > 0 first, then < 0, and let else catch everything left.",
+          "Zero is neither positive nor negative, so it falls to else."
+        ],
+        "solution": "n = 0\nif n > 0:\n    print(\"positive\")\nelif n < 0:\n    print(\"negative\")\nelse:\n    print(\"zero\")"
       }
     },
     {
@@ -173,7 +248,12 @@
       "exercise": {
         "prompt": "Print the numbers 1 to 4, one per line, using a for loop.",
         "starter": "",
-        "expected": "1\n2\n3\n4"
+        "expected": "1\n2\n3\n4",
+        "hints": [
+          "range(start, stop) includes start and excludes stop.",
+          "To print up to 4 you need range(1, 5)."
+        ],
+        "solution": "for i in range(1, 5):\n    print(i)"
       }
     },
     {
@@ -184,7 +264,12 @@
       "exercise": {
         "prompt": "Use a while loop to print the numbers 3, 2, 1 (counting down).",
         "starter": "n = 3\n",
-        "expected": "3\n2\n1"
+        "expected": "3\n2\n1",
+        "hints": [
+          "Print the number first, then decrease it.",
+          "The loop should keep going while n is greater than 0."
+        ],
+        "solution": "n = 3\nwhile n > 0:\n    print(n)\n    n = n - 1"
       }
     },
     {
@@ -195,7 +280,12 @@
       "exercise": {
         "prompt": "Loop 1 to 10, but stop (break) as soon as you reach 4. Print each number before checking.",
         "starter": "",
-        "expected": "1\n2\n3"
+        "expected": "1\n2\n3",
+        "hints": [
+          "Check whether you have reached 4 before printing it.",
+          "The break must come before the print, or 4 gets printed first."
+        ],
+        "solution": "for i in range(1, 11):\n    if i == 4:\n        break\n    print(i)"
       }
     },
     {
@@ -206,7 +296,12 @@
       "exercise": {
         "prompt": "Use two nested loops to print a 2-by-3 block of stars: two lines, three stars each.",
         "starter": "",
-        "expected": "***\n***"
+        "expected": "***\n***",
+        "hints": [
+          "The outer loop controls rows; the inner loop builds one row.",
+          "Build a string inside the inner loop, then print it once after that loop."
+        ],
+        "solution": "for i in range(2):\n    row = \"\"\n    for j in range(3):\n        row = row + \"*\"\n    print(row)"
       }
     },
     {
@@ -217,7 +312,12 @@
       "exercise": {
         "prompt": "Zip names = [Ada, Grace] with ages = [36, 45] and print each as: Ada is 36",
         "starter": "names = [\"Ada\", \"Grace\"]\nages = [36, 45]\n",
-        "expected": "Ada is 36\nGrace is 45"
+        "expected": "Ada is 36\nGrace is 45",
+        "hints": [
+          "zip() walks two lists in step, pairing up items.",
+          "Unpack each pair in the for line: for name, age in zip(...)."
+        ],
+        "solution": "names = [\"Ada\", \"Grace\"]\nages = [36, 45]\nfor name, age in zip(names, ages):\n    print(f\"{name} is {age}\")"
       }
     },
     {
@@ -228,7 +328,12 @@
       "exercise": {
         "prompt": "Use a list comprehension to build the squares of 1, 2, 3 and print the list.",
         "starter": "",
-        "expected": "[1, 4, 9]"
+        "expected": "[1, 4, 9]",
+        "hints": [
+          "The shape is [expression for item in sequence].",
+          "The expression is n * n and the sequence is range(1, 4)."
+        ],
+        "solution": "print([n * n for n in range(1, 4)])"
       }
     },
     {
@@ -239,7 +344,12 @@
       "exercise": {
         "prompt": "From colors = [\"red\", \"green\", \"blue\"], print the second item (green).",
         "starter": "colors = [\"red\", \"green\", \"blue\"]\n",
-        "expected": "green"
+        "expected": "green",
+        "hints": [
+          "Indexing starts at 0, not 1.",
+          "The second item therefore lives at index 1."
+        ],
+        "solution": "colors = [\"red\", \"green\", \"blue\"]\nprint(colors[1])"
       }
     },
     {
@@ -250,7 +360,12 @@
       "exercise": {
         "prompt": "Start with nums = [], append 1, 2, 3 in a loop, then print the list.",
         "starter": "nums = []\n",
-        "expected": "[1, 2, 3]"
+        "expected": "[1, 2, 3]",
+        "hints": [
+          "append() adds a single item to the end of a list.",
+          "Loop over the values, append each one, then print the list."
+        ],
+        "solution": "nums = []\nfor n in [1, 2, 3]:\n    nums.append(n)\nprint(nums)"
       }
     },
     {
@@ -261,7 +376,12 @@
       "exercise": {
         "prompt": "Given nums = [2, 4, 6], loop over it and print the total: 12",
         "starter": "nums = [2, 4, 6]\ntotal = 0\n",
-        "expected": "12"
+        "expected": "12",
+        "hints": [
+          "Start total at 0 before the loop begins.",
+          "Add each item to total inside the loop, and print after it ends."
+        ],
+        "solution": "nums = [2, 4, 6]\ntotal = 0\nfor n in nums:\n    total = total + n\nprint(total)"
       }
     },
     {
@@ -272,7 +392,12 @@
       "exercise": {
         "prompt": "Swap a and b using tuple unpacking, then print them: a=1, b=2 should print 2 1",
         "starter": "a = 1\nb = 2\n",
-        "expected": "2 1"
+        "expected": "2 1",
+        "hints": [
+          "Python can swap two variables in a single line.",
+          "a, b = b, a builds a tuple on the right and unpacks it back."
+        ],
+        "solution": "a = 1\nb = 2\na, b = b, a\nprint(a, b)"
       }
     },
     {
@@ -283,7 +408,12 @@
       "exercise": {
         "prompt": "Given nums = [1, 2, 2, 3, 3, 3], print how many unique values there are.",
         "starter": "nums = [1, 2, 2, 3, 3, 3]\n",
-        "expected": "3"
+        "expected": "3",
+        "hints": [
+          "A set discards duplicates automatically when you create it.",
+          "len(set(nums)) gives you the count of unique values."
+        ],
+        "solution": "nums = [1, 2, 2, 3, 3, 3]\nprint(len(set(nums)))"
       }
     },
     {
@@ -294,7 +424,12 @@
       "exercise": {
         "prompt": "Given a = [1, 2, 3] and b = [2, 3, 4], print the values they have in common, sorted.",
         "starter": "a = [1, 2, 3]\nb = [2, 3, 4]\n",
-        "expected": "[2, 3]"
+        "expected": "[2, 3]",
+        "hints": [
+          "Turn both lists into sets, then & gives the values in both.",
+          "sorted() puts the result back in order so the output is predictable."
+        ],
+        "solution": "a = [1, 2, 3]\nb = [2, 3, 4]\nprint(sorted(set(a) & set(b)))"
       }
     },
     {
@@ -305,7 +440,12 @@
       "exercise": {
         "prompt": "Create a dict named capitals with France mapped to Paris, then print capitals[\\\"France\\\"].",
         "starter": "",
-        "expected": "Paris"
+        "expected": "Paris",
+        "hints": [
+          "A dict literal is written {key: value}.",
+          "Read a value by putting the key in square brackets: capitals[\"France\"]."
+        ],
+        "solution": "capitals = {\"France\": \"Paris\"}\nprint(capitals[\"France\"])"
       }
     },
     {
@@ -316,7 +456,12 @@
       "exercise": {
         "prompt": "Given words = [\\\"a\\\", \\\"b\\\", \\\"a\\\"], build a count dict and print counts[\\\"a\\\"].",
         "starter": "words = [\"a\", \"b\", \"a\"]\n",
-        "expected": "2"
+        "expected": "2",
+        "hints": [
+          "counts.get(word, 0) + 1 counts without ever raising KeyError.",
+          "Then print the value stored under the key \"a\"."
+        ],
+        "solution": "words = [\"a\", \"b\", \"a\"]\ncounts = {}\nfor w in words:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts[\"a\"])"
       }
     },
     {
@@ -327,7 +472,12 @@
       "exercise": {
         "prompt": "For prices = {\\\"apple\\\": 2, \\\"pear\\\": 3}, loop with .items() and print apple: 2 then pear: 3.",
         "starter": "prices = {\"apple\": 2, \"pear\": 3}\n",
-        "expected": "apple: 2\npear: 3"
+        "expected": "apple: 2\npear: 3",
+        "hints": [
+          ".items() gives you the key and the value together.",
+          "Unpack them in the for line: for name, price in prices.items()."
+        ],
+        "solution": "prices = {\"apple\": 2, \"pear\": 3}\nfor name, price in prices.items():\n    print(f\"{name}: {price}\")"
       }
     },
     {
@@ -338,7 +488,12 @@
       "exercise": {
         "prompt": "Define a function named hello that prints hi, then call it once.",
         "starter": "",
-        "expected": "hi"
+        "expected": "hi",
+        "hints": [
+          "A function is def name(): followed by an indented body.",
+          "Defining it does nothing -- you also have to call hello()."
+        ],
+        "solution": "def hello():\n    print(\"hi\")\n\nhello()"
       }
     },
     {
@@ -349,7 +504,12 @@
       "exercise": {
         "prompt": "Write a function square(n) that returns n squared, then print square(5).",
         "starter": "",
-        "expected": "25"
+        "expected": "25",
+        "hints": [
+          "Use return inside the function, not print.",
+          "Then print the result of calling square(5) from outside."
+        ],
+        "solution": "def square(n):\n    return n * n\n\nprint(square(5))"
       }
     },
     {
@@ -360,7 +520,12 @@
       "exercise": {
         "prompt": "Write a function biggest(nums) that returns the largest number in a list (do not use max()), then print biggest([4, 9, 2]).",
         "starter": "",
-        "expected": "9"
+        "expected": "9",
+        "hints": [
+          "Start with the first item as your current best guess.",
+          "Loop the rest, replacing best whenever you find something larger."
+        ],
+        "solution": "def biggest(nums):\n    best = nums[0]\n    for n in nums:\n        if n > best:\n            best = n\n    return best\n\nprint(biggest([4, 9, 2]))"
       }
     },
     {
@@ -371,7 +536,12 @@
       "exercise": {
         "prompt": "Wrap int(\\\"abc\\\") in try/except ValueError so it prints: bad input",
         "starter": "",
-        "expected": "bad input"
+        "expected": "bad input",
+        "hints": [
+          "Put only the risky line inside the try: block.",
+          "Catch ValueError specifically -- not a bare except."
+        ],
+        "solution": "try:\n    int(\"abc\")\nexcept ValueError:\n    print(\"bad input\")"
       }
     },
     {
@@ -382,7 +552,12 @@
       "exercise": {
         "prompt": "Given items = [\\\"x\\\"], print items[0] inside try/except IndexError. It should print x.",
         "starter": "items = [\"x\"]\n",
-        "expected": "x"
+        "expected": "x",
+        "hints": [
+          "items[0] is valid here, so the try block succeeds and prints x.",
+          "The except branch only runs if an IndexError actually happens."
+        ],
+        "solution": "items = [\"x\"]\ntry:\n    print(items[0])\nexcept IndexError:\n    print(\"out of range\")"
       }
     },
     {
@@ -393,7 +568,12 @@
       "exercise": {
         "prompt": "Write check(n) that raises ValueError if n < 0, else returns n. Call it with 5 and print the result.",
         "starter": "",
-        "expected": "5"
+        "expected": "5",
+        "hints": [
+          "raise ValueError(...) stops the function immediately.",
+          "Return n when the check passes, then print check(5)."
+        ],
+        "solution": "def check(n):\n    if n < 0:\n        raise ValueError(\"negative\")\n    return n\n\nprint(check(5))"
       }
     },
     {
@@ -407,7 +587,12 @@
         "expected": "hello",
         "files": {
           "notes.txt": "hello\n"
-        }
+        },
+        "hints": [
+          "The file already exists -- check the panel above the code box.",
+          "Use a with block around open(), then print what .read() returns."
+        ],
+        "solution": "with open(\"notes.txt\") as f:\n    print(f.read().strip())"
       }
     },
     {
@@ -419,7 +604,12 @@
         "prompt": "Write one and two to out.txt (each on its own line) using w mode, then read it back and print it.",
         "starter": "with open(\"out.txt\", \"w\") as f:\n    f.write(\"one\\n\")\n",
         "expected": "one\ntwo",
-        "files": {}
+        "files": {},
+        "hints": [
+          "Each line needs its own \\n at the end.",
+          "Open the file a second time to read it back, then print it."
+        ],
+        "solution": "with open(\"out.txt\", \"w\") as f:\n    f.write(\"one\\n\")\n    f.write(\"two\\n\")\n\nwith open(\"out.txt\") as f:\n    print(f.read().strip())"
       }
     },
     {
@@ -433,7 +623,12 @@
         "expected": "40",
         "files": {
           "sales.txt": "10\n25\n5\n"
-        }
+        },
+        "hints": [
+          "Loop over the lines of the file one at a time.",
+          "Every line is text, so convert with int() before adding it to total."
+        ],
+        "solution": "total = 0\nwith open(\"sales.txt\") as f:\n    for line in f:\n        total = total + int(line)\nprint(total)"
       }
     }
   ]

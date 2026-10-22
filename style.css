@@ -349,6 +349,114 @@ body { display: flex; overflow: hidden; }
   overflow-y: auto;
 }
 
+.hints {
+  padding: .8rem 1.05rem;
+  border-top: 1px solid var(--border);
+  background: #131a24;
+}
+
+.hints-label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+
+.hint-item {
+  display: flex;
+  gap: .6rem;
+  font-size: .87rem;
+  color: #c3d3e3;
+  padding: .4rem 0;
+  line-height: 1.55;
+}
+
+.hint-item + .hint-item { border-top: 1px solid #1d2532; }
+
+.hint-num {
+  flex: 0 0 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #263041;
+  color: var(--amber);
+  font-size: .7rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  margin-top: .1rem;
+}
+
+/* ---------- solution modal ---------- */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 5, 10, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  z-index: 50;
+}
+
+.modal[hidden] { display: none; }
+
+.modal-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 620px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .9rem 1.05rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: .95rem;
+}
+
+.modal-note {
+  margin: 0;
+  padding: .85rem 1.05rem 0;
+  font-size: .82rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+.modal-code {
+  margin: .85rem 1.05rem;
+  padding: .9rem 1rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: .84rem;
+  line-height: 1.6;
+  color: #c8d6e5;
+  overflow: auto;
+  white-space: pre;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .55rem;
+  padding: .85rem 1.05rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
 .output.pass { border-left: 3px solid var(--accent); }
 .output.fail { border-left: 3px solid var(--red); }
 
