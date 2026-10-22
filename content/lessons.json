@@ -100,6 +100,39 @@
       }
     },
     {
+      "id": "splitjoin",
+      "chapter": "Working with Strings",
+      "title": "Splitting and Joining",
+      "body": "# Splitting and Joining\n\nTwo methods cover most text processing: `split()` turns a string into a list,\n`join()` turns a list back into a string.\n\n## split\n\n```python\nsentence = \"the cat sat\"\nwords = sentence.split()\nprint(words)\n```\n\n```\n['the', 'cat', 'sat']\n```\n\nWith no argument, `.split()` breaks on any run of whitespace -- spaces, tabs,\nnewlines. That makes it the right tool for messy text.\n\nGive it a character to split on something specific:\n\n```python\ncsv = \"ada,grace,alan\"\nprint(csv.split(\",\"))\n```\n\n```\n['ada', 'grace', 'alan']\n```\n\n## join\n\n`join()` is the reverse. It is called **on the separator**, and you pass it the\nlist:\n\n```python\nprint(\" \".join([\"the\", \"cat\"]))     # the cat\nprint(\"-\".join([\"a\", \"b\", \"c\"]))    # a-b-c\n```\n\nThe order feels backwards the first time you say it out loud. Read\n`\" \".join(words)` as *\"join these words using a space.\"*\n\n## The round trip\n\n```python\ntext = \"one two three\"\nprint(len(text.split()))            # 3 words\nprint(\",\".join(text.split()))       # one,two,three\n```\n\n> ⚠️ `join()` needs a list of **strings**. `\",\".join([1, 2])` raises\n> `TypeError`. Convert first: `\",\".join(str(n) for n in [1, 2])`.",
+      "exercise": {
+        "prompt": "Split the string \\\"a b c\\\" on whitespace and print how many words there are.",
+        "starter": "text = \"a b c\"\n",
+        "expected": "3"
+      }
+    },
+    {
+      "id": "strmethods",
+      "chapter": "Working with Strings",
+      "title": "Useful String Methods",
+      "body": "# Useful String Methods\n\nA tour of the ones you will actually use.\n\n## strip -- remove surrounding whitespace\n\n```python\nprint(\"  hello  \".strip())     # hello\n```\n\nThe most common use in the world: cleaning a line read from a file, which\nalways arrives with a `\\n` on the end.\n\n## replace\n\n```python\nprint(\"cat sat\".replace(\"cat\", \"dog\"))   # dog sat\n```\n\nReplaces **every** occurrence, not just the first.\n\n## Checking starts and ends\n\n```python\nurl = \"https://example.com/page\"\nprint(url.startswith(\"https\"))    # True\nprint(url.endswith(\".html\"))      # False\n```\n\n## Counting and finding\n\n```python\nprint(\"banana\".count(\"a\"))      # 3\nprint(\"banana\".find(\"na\"))      # 2\n```\n\n`.find()` returns the index of the first match, or `-1` if there is none.\nCareful: `-1` is falsy but also a valid-looking number, so compare explicitly\nagainst `-1` rather than relying on truthiness.\n\n## Changing case\n\n```python\nprint(\"hello\".upper())     # HELLO\nprint(\"HELLO\".lower())     # hello\nprint(\"hello world\".title())   # Hello World\n```\n\n> None of these change the original string -- they all **return a new one**.\n> Strings are immutable. `word.upper()` alone does nothing; you must use the\n> result.",
+      "exercise": {
+        "prompt": "Given s = \\\"  Hello  \\\", print s with the spaces stripped.",
+        "starter": "s = \"  Hello  \"\n",
+        "expected": "Hello"
+      }
+    },
+    {
+      "id": "slicing",
+      "chapter": "Working with Strings",
+      "title": "Slicing",
+      "body": "# Slicing\n\n`[start:stop]` cuts a piece out of a string -- or a list. Start is included,\nstop is **excluded**.\n\n```python\nword = \"python\"\nprint(word[0:3])    # pyt\nprint(word[3:])     # hon\nprint(word[:3])     # pyt\n```\n\nLeaving a side blank means \"from the beginning\" or \"to the end\".\n\n## Negative indices\n\nCounting from the end:\n\n```python\nprint(word[-3:])    # hon\nprint(word[-1])     # n\n```\n\n`word[-3:]` is the everyday way to say \"the last three characters.\"\n\n## The step\n\nA third number is the stride:\n\n```python\nprint(word[::2])    # pto\nprint(word[::-1])   # nohtyp\n```\n\n`[::-1]` is the classic way to reverse a string. It reads as \"whole string,\nbackwards, one at a time.\"\n\n## Slicing never crashes\n\nOut-of-range slices are clamped instead of raising:\n\n```python\nprint(word[0:100])   # python\n```\n\nCompare that to `word[100]`, which **does** raise `IndexError`. Slicing is\nforgiving; indexing is not.\n\n> Slices of a list work exactly the same way -- this is not string-specific.",
+      "exercise": {
+        "prompt": "Print the first three characters of the string python.",
+        "starter": "word = \"python\"\n",
+        "expected": "pyt"
+      }
+    },
+    {
       "id": "booleans",
       "chapter": "Making Decisions",
       "title": "Booleans",
@@ -166,6 +199,39 @@
       }
     },
     {
+      "id": "nested",
+      "chapter": "Loop Patterns",
+      "title": "Nested Loops",
+      "body": "# Nested Loops\n\nA loop inside a loop. The inner loop runs **completely** for each step of the\nouter one.\n\n```python\nfor i in range(1, 3):\n    for j in range(1, 3):\n        print(i, j)\n```\n\n```\n1 1\n1 2\n2 1\n2 2\n```\n\nCount the lines: the inner loop ran twice for `i=1`, then twice again for\n`i=2`. Outer count times inner count.\n\n## Building rows\n\nThe usual shape -- build a string, then print it once per outer pass:\n\n```python\nfor i in range(2):\n    row = \"\"\n    for j in range(3):\n        row = row + \"*\"\n    print(row)\n```\n\n```\n***\n***\n```\n\n`print` inside the inner loop would put each star on its own line. Accumulating\ninto `row` and printing after the inner loop gives one line per row.\n\n## Careful with cost\n\nNesting three loops over 1000 items each is a billion steps. Nested loops\nmultiply. If a program feels slow, check for a loop inside a loop first.\n\n> `break` only leaves the loop it is in -- the outer loop keeps going. To leave\n> both, use a flag or move the work into a function and `return`.",
+      "exercise": {
+        "prompt": "Use two nested loops to print a 2-by-3 block of stars: two lines, three stars each.",
+        "starter": "",
+        "expected": "***\n***"
+      }
+    },
+    {
+      "id": "enumzip",
+      "chapter": "Loop Patterns",
+      "title": "enumerate and zip",
+      "body": "# enumerate and zip\n\nTwo built-ins that remove most manual index bookkeeping.\n\n## enumerate -- item plus position\n\n```python\nfor i, name in enumerate([\"ada\", \"grace\"]):\n    print(i, name)\n```\n\n```\n0 ada\n1 grace\n```\n\nStart counting at 1 with `start=1`:\n\n```python\nfor i, name in enumerate([\"ada\", \"grace\"], start=1):\n    print(f\"{i}. {name}\")\n```\n\n```\n1. ada\n2. grace\n```\n\n## zip -- walk two lists together\n\n```python\nnames = [\"ada\", \"grace\"]\nages = [36, 45]\n\nfor name, age in zip(names, ages):\n    print(f\"{name} is {age}\")\n```\n\n```\nada is 36\ngrace is 45\n```\n\n`zip` pairs the first of each, the second of each, and so on.\n\n> ⚠️ `zip` stops at the **shortest** list, silently. If the lists should be the\n> same length, check `len()` first -- a truncated loop is easy to miss.",
+      "exercise": {
+        "prompt": "Zip names = [Ada, Grace] with ages = [36, 45] and print each as: Ada is 36",
+        "starter": "names = [\"Ada\", \"Grace\"]\nages = [36, 45]\n",
+        "expected": "Ada is 36\nGrace is 45"
+      }
+    },
+    {
+      "id": "comprehensions",
+      "chapter": "Loop Patterns",
+      "title": "List Comprehensions",
+      "body": "# List Comprehensions\n\nA loop that builds a list, written in one line. Once it clicks, you will use it\nconstantly.\n\nCompare:\n\n```python\nsquares = []\nfor n in range(1, 4):\n    squares.append(n * n)\n```\n\nwith:\n\n```python\nsquares = [n * n for n in range(1, 4)]\n```\n\nBoth produce `[1, 4, 9]`. The second says *\"a list of `n*n`, for each `n`.\"*\n\n## The pattern\n\n```\n[ expression  for item in sequence ]\n```\n\nRead it right to left if that helps: for each item, produce the expression.\n\n## With a filter\n\nAdd `if` at the end:\n\n```python\nnums = [1, 2, 3, 4, 5, 6]\nevens = [n for n in nums if n % 2 == 0]\nprint(evens)\n```\n\n```\n[2, 4, 6]\n```\n\n## With a transform and a filter\n\n```python\nprint([n * 10 for n in nums if n > 3])\n```\n\n```\n[40, 50, 60]\n```\n\n## Dicts too\n\n```python\nprint({n: n * n for n in range(1, 4)})\n```\n\n```\n{1: 1, 2: 4, 3: 9}\n```\n\n> Keep it to one `for` and at most one `if`. The moment a comprehension needs\n> squinting, a plain loop is better code. Shorter is not the same as clearer.",
+      "exercise": {
+        "prompt": "Use a list comprehension to build the squares of 1, 2, 3 and print the list.",
+        "starter": "",
+        "expected": "[1, 4, 9]"
+      }
+    },
+    {
       "id": "lists",
       "chapter": "Lists",
       "title": "Lists",
@@ -199,36 +265,36 @@
       }
     },
     {
-      "id": "def",
-      "chapter": "Functions",
-      "title": "Functions",
-      "body": "# Functions\n\nA function is a named block of code you can run whenever you want, as many\ntimes as you want.\n\n```python\ndef greet():\n    print(\"Hello!\")\n\ngreet()\ngreet()\n```\n\n```\nHello!\nHello!\n```\n\nLine by line:\n\n- `def` says \"I am defining a function\"\n- `greet` is the name\n- `()` is where inputs will go (none here)\n- `:` ends the header\n- the indented body is what runs when called\n\n**Defining a function does not run it.** Nothing happens until you write\n`greet()`. This confuses people constantly -- if your function \"does nothing\",\ncheck you actually called it.\n\n## Why use them?\n\nBecause the alternative is copy-pasting the same lines everywhere. Then you fix\na bug in one copy and forget the other three. Write it once, call it everywhere.",
+      "id": "tuples",
+      "chapter": "Tuples and Sets",
+      "title": "Tuples",
+      "body": "# Tuples\n\nA tuple is like a list that cannot be changed. Round brackets instead of\nsquare.\n\n```python\npoint = (3, 5)\nprint(point[0])    # 3\n```\n\nTrying to change one fails:\n\n```python\npoint[0] = 9\n```\n\n```\nTypeError: 'tuple' object does not support item assignment\n```\n\nThat is the point. A tuple promises it will never change, so you can pass it\naround without wondering who might modify it.\n\n## Unpacking\n\nThe useful part. A tuple can be split into named variables in one line:\n\n```python\npoint = (3, 5)\nx, y = point\nprint(x, y)    # 3 5\n```\n\n## Swapping\n\nThis works in Python because of tuples:\n\n```python\na = 1\nb = 2\na, b = b, a\nprint(a, b)    # 2 1\n```\n\nThe right side builds a tuple `(2, 1)`, then unpacks it back. No temporary\nvariable needed.\n\n## Returning several values\n\nA function returns one thing -- but that thing can be a tuple:\n\n```python\ndef min_max(nums):\n    return min(nums), max(nums)\n\nlow, high = min_max([4, 9, 2])\nprint(low, high)    # 2 9\n```\n\n> One-item tuples need a trailing comma: `(5,)`. Without it, `(5)` is just the\n> number 5 in brackets.",
       "exercise": {
-        "prompt": "Define a function named hello that prints hi, then call it once.",
-        "starter": "",
-        "expected": "hi"
+        "prompt": "Swap a and b using tuple unpacking, then print them: a=1, b=2 should print 2 1",
+        "starter": "a = 1\nb = 2\n",
+        "expected": "2 1"
       }
     },
     {
-      "id": "params",
-      "chapter": "Functions",
-      "title": "Parameters and return",
-      "body": "# Parameters and return\n\n## Parameters: giving the function data\n\n```python\ndef greet(name):\n    print(f\"Hello, {name}!\")\n\ngreet(\"Ada\")\ngreet(\"Grace\")\n```\n\n```\nHello, Ada!\nHello, Grace!\n```\n\n`name` is a **parameter** -- a variable that gets whatever you passed in.\n`\"Ada\"` is the **argument** -- the actual value.\n\n## return: giving data back\n\n`print` shows a value on screen. `return` hands it back to the caller so it can\nbe used.\n\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(2, 3)\nprint(result * 10)    # 50\n```\n\n## print vs return -- the big one\n\n```python\ndef add_print(a, b):\n    print(a + b)       # shows 5, returns None\n\ndef add_return(a, b):\n    return a + b       # returns 5\n```\n\nIf you `print` inside a function, the caller gets `None` -- nothing usable.\nBeginners lose hours to this. **Use `return` when the caller needs the value.**\n\nA function hits `return` and stops immediately; nothing after it runs.",
+      "id": "sets",
+      "chapter": "Tuples and Sets",
+      "title": "Sets",
+      "body": "# Sets\n\nA set is a collection with **no duplicates** and **no order**. Curly braces,\nlike a dict, but just values.\n\n```python\nnums = {1, 2, 2, 3, 3, 3}\nprint(nums)\n```\n\n```\n{1, 2, 3}\n```\n\nThe duplicates vanished on creation. That is the whole personality of a set.\n\n## Removing duplicates from a list\n\nThis is the classic one-liner:\n\n```python\nwords = [\"a\", \"b\", \"a\", \"c\"]\nunique = set(words)\nprint(len(unique))        # 3\nprint(sorted(unique))     # ['a', 'b', 'c']\n```\n\nYou need `sorted()` to print it predictably -- a set has no order, so printing\nit directly can come out differently each run.\n\n## Membership is instant\n\n```python\nprint(3 in {1, 2, 3})     # True\n```\n\nChecking `in` on a set or dict is far faster than on a list, because it does\nnot scan. For big collections this matters.\n\n## Adding and removing\n\n```python\ns = {1, 2}\ns.add(3)\ns.discard(1)\nprint(s)    # {2, 3}\n```\n\n`.discard()` removes if present and **never errors** -- unlike `.remove()`,\nwhich raises `KeyError` when the item is missing.\n\n> ⚠️ Empty set is `set()`, not `{}`. Curly braces alone make an empty *dict*.",
       "exercise": {
-        "prompt": "Write a function square(n) that returns n squared, then print square(5).",
-        "starter": "",
-        "expected": "25"
+        "prompt": "Given nums = [1, 2, 2, 3, 3, 3], print how many unique values there are.",
+        "starter": "nums = [1, 2, 2, 3, 3, 3]\n",
+        "expected": "3"
       }
     },
     {
-      "id": "final",
-      "chapter": "Functions",
-      "title": "Putting It Together",
-      "body": "# Putting It Together\n\nTime to combine everything: a function that loops over a list and returns a\nvalue.\n\n```python\ndef total(prices):\n    result = 0\n    for price in prices:\n        result = result + price\n    return result\n\nprint(total([3, 5, 2]))   # 10\n```\n\nRead it as a sentence: *\"to total a list of prices: start at 0, add each one,\nhand back the result.\"*\n\n## A slightly bigger example\n\n```python\ndef average(numbers):\n    if len(numbers) == 0:\n        return 0\n    return total(numbers) / len(numbers)\n\nprint(average([3, 5, 2]))    # 3.3333333333333335\nprint(f\"{average([3, 5, 2]):.2f}\")   # 3.33\n```\n\nTwo things worth noticing:\n\n1. The **guard clause**: `if len(numbers) == 0` returns early. Dividing by zero\n   would crash, so we handle the empty case first. Checking odd inputs at the\n   top of a function is a habit worth building.\n2. Functions calling functions. `average` uses `total`. Small pieces, stacked.\n\n## Where you go next\n\nYou now know variables, types, conditions, loops, lists and functions. That is\ngenuinely most of the language. Real next steps:\n\n- Dictionaries -- key/value storage\n- Reading and writing files\n- `try` / `except` for handling errors\n- Installing packages with `pip`\n- Classes, when you meet code that needs them\n\nPick a small annoying task you do by hand and automate it. That teaches more\nthan any tutorial.",
+      "id": "whichcollection",
+      "chapter": "Tuples and Sets",
+      "title": "Which One Do I Use?",
+      "body": "# Which One Do I Use?\n\nFour collections, four jobs.\n\n| Type | Syntax | Ordered | Changeable | Duplicates | Use when |\n|---|---|---|---|---|---|\n| `list` | `[1, 2]` | yes | yes | yes | a sequence you will grow or edit |\n| `tuple` | `(1, 2)` | yes | no | yes | a fixed group, like a coordinate |\n| `set` | `{1, 2}` | no | yes | no | uniqueness, or fast `in` checks |\n| `dict` | `{\"a\": 1}` | yes | yes | keys unique | labelled data, lookup by name |\n\n## The decision in plain words\n\n- Need to change it later? **list**\n- Must never change? **tuple**\n- Only care whether something is in there? **set**\n- Look things up by name? **dict**\n\n## Set operations\n\nSets do maths from school:\n\n```python\na = {1, 2, 3}\nb = {2, 3, 4}\n\nprint(a & b)    # {2, 3}   both -- intersection\nprint(a | b)    # {1,2,3,4} either -- union\nprint(a - b)    # {1}      in a but not b -- difference\n```\n\nThat `&` is the tidy way to answer \"what do these two lists have in common?\"\n\n## A realistic mix\n\n```python\nnames = [\"ada\", \"grace\", \"ada\"]\nseen = set()\nfor n in names:\n    seen.add(n)\nprint(len(seen), sorted(seen))\n```\n\n```\n2 ['ada', 'grace']\n```\n\n> Start with a list every time. Convert to a set only when you need uniqueness\n> or speed, and convert back with `sorted()` when you need order.",
       "exercise": {
-        "prompt": "Write a function biggest(nums) that returns the largest number in a list (do not use max()), then print biggest([4, 9, 2]).",
-        "starter": "",
-        "expected": "9"
+        "prompt": "Given a = [1, 2, 3] and b = [2, 3, 4], print the values they have in common, sorted.",
+        "starter": "a = [1, 2, 3]\nb = [2, 3, 4]\n",
+        "expected": "[2, 3]"
       }
     },
     {
@@ -262,6 +328,39 @@
         "prompt": "For prices = {\\\"apple\\\": 2, \\\"pear\\\": 3}, loop with .items() and print apple: 2 then pear: 3.",
         "starter": "prices = {\"apple\": 2, \"pear\": 3}\n",
         "expected": "apple: 2\npear: 3"
+      }
+    },
+    {
+      "id": "def",
+      "chapter": "Functions",
+      "title": "Functions",
+      "body": "# Functions\n\nA function is a named block of code you can run whenever you want, as many\ntimes as you want.\n\n```python\ndef greet():\n    print(\"Hello!\")\n\ngreet()\ngreet()\n```\n\n```\nHello!\nHello!\n```\n\nLine by line:\n\n- `def` says \"I am defining a function\"\n- `greet` is the name\n- `()` is where inputs will go (none here)\n- `:` ends the header\n- the indented body is what runs when called\n\n**Defining a function does not run it.** Nothing happens until you write\n`greet()`. This confuses people constantly -- if your function \"does nothing\",\ncheck you actually called it.\n\n## Why use them?\n\nBecause the alternative is copy-pasting the same lines everywhere. Then you fix\na bug in one copy and forget the other three. Write it once, call it everywhere.",
+      "exercise": {
+        "prompt": "Define a function named hello that prints hi, then call it once.",
+        "starter": "",
+        "expected": "hi"
+      }
+    },
+    {
+      "id": "params",
+      "chapter": "Functions",
+      "title": "Parameters and return",
+      "body": "# Parameters and return\n\n## Parameters: giving the function data\n\n```python\ndef greet(name):\n    print(f\"Hello, {name}!\")\n\ngreet(\"Ada\")\ngreet(\"Grace\")\n```\n\n```\nHello, Ada!\nHello, Grace!\n```\n\n`name` is a **parameter** -- a variable that gets whatever you passed in.\n`\"Ada\"` is the **argument** -- the actual value.\n\n## return: giving data back\n\n`print` shows a value on screen. `return` hands it back to the caller so it can\nbe used.\n\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(2, 3)\nprint(result * 10)    # 50\n```\n\n## print vs return -- the big one\n\n```python\ndef add_print(a, b):\n    print(a + b)       # shows 5, returns None\n\ndef add_return(a, b):\n    return a + b       # returns 5\n```\n\nIf you `print` inside a function, the caller gets `None` -- nothing usable.\nBeginners lose hours to this. **Use `return` when the caller needs the value.**\n\nA function hits `return` and stops immediately; nothing after it runs.",
+      "exercise": {
+        "prompt": "Write a function square(n) that returns n squared, then print square(5).",
+        "starter": "",
+        "expected": "25"
+      }
+    },
+    {
+      "id": "final",
+      "chapter": "Functions",
+      "title": "Putting It Together",
+      "body": "# Putting It Together\n\nTime to combine everything: a function that loops over a list and returns a\nvalue.\n\n```python\ndef total(prices):\n    result = 0\n    for price in prices:\n        result = result + price\n    return result\n\nprint(total([3, 5, 2]))   # 10\n```\n\nRead it as a sentence: *\"to total a list of prices: start at 0, add each one,\nhand back the result.\"*\n\n## A slightly bigger example\n\n```python\ndef average(numbers):\n    if len(numbers) == 0:\n        return 0\n    return total(numbers) / len(numbers)\n\nprint(average([3, 5, 2]))    # 3.3333333333333335\nprint(f\"{average([3, 5, 2]):.2f}\")   # 3.33\n```\n\nTwo things worth noticing:\n\n1. The **guard clause**: `if len(numbers) == 0` returns early. Dividing by zero\n   would crash, so we handle the empty case first. Checking odd inputs at the\n   top of a function is a habit worth building.\n2. Functions calling functions. `average` uses `total`. Small pieces, stacked.\n\n## Where you go next\n\nYou now know variables, types, conditions, loops, lists and functions. That is\ngenuinely most of the language. Real next steps:\n\n- Dictionaries -- key/value storage\n- Reading and writing files\n- `try` / `except` for handling errors\n- Installing packages with `pip`\n- Classes, when you meet code that needs them\n\nPick a small annoying task you do by hand and automate it. That teaches more\nthan any tutorial.",
+      "exercise": {
+        "prompt": "Write a function biggest(nums) that returns the largest number in a list (do not use max()), then print biggest([4, 9, 2]).",
+        "starter": "",
+        "expected": "9"
       }
     },
     {

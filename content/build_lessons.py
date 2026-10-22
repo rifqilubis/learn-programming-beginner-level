@@ -1487,10 +1487,577 @@ That three-line pattern handles almost every real-world data file you will meet.
 }, 'total = 0\nwith open("sales.txt") as f:\n    for line in f:\n        total = total + int(line)\nprint(total)')
 
 
+# ---------------------------------------------------------------- ch10: strings deep
+lesson("splitjoin", "Working with Strings", "Splitting and Joining", """
+# Splitting and Joining
+
+Two methods cover most text processing: `split()` turns a string into a list,
+`join()` turns a list back into a string.
+
+## split
+
+```python
+sentence = "the cat sat"
+words = sentence.split()
+print(words)
+```
+
+```
+['the', 'cat', 'sat']
+```
+
+With no argument, `.split()` breaks on any run of whitespace -- spaces, tabs,
+newlines. That makes it the right tool for messy text.
+
+Give it a character to split on something specific:
+
+```python
+csv = "ada,grace,alan"
+print(csv.split(","))
+```
+
+```
+['ada', 'grace', 'alan']
+```
+
+## join
+
+`join()` is the reverse. It is called **on the separator**, and you pass it the
+list:
+
+```python
+print(" ".join(["the", "cat"]))     # the cat
+print("-".join(["a", "b", "c"]))    # a-b-c
+```
+
+The order feels backwards the first time you say it out loud. Read
+`" ".join(words)` as *"join these words using a space."*
+
+## The round trip
+
+```python
+text = "one two three"
+print(len(text.split()))            # 3 words
+print(",".join(text.split()))       # one,two,three
+```
+
+> ⚠️ `join()` needs a list of **strings**. `",".join([1, 2])` raises
+> `TypeError`. Convert first: `",".join(str(n) for n in [1, 2])`.
+""", {
+    "prompt": "Split the string \\\"a b c\\\" on whitespace and print how many words there are.",
+    "starter": 'text = "a b c"\n',
+    "expected": "3",
+}, 'text = "a b c"\nprint(len(text.split()))')
+
+lesson("strmethods", "Working with Strings", "Useful String Methods", """
+# Useful String Methods
+
+A tour of the ones you will actually use.
+
+## strip -- remove surrounding whitespace
+
+```python
+print("  hello  ".strip())     # hello
+```
+
+The most common use in the world: cleaning a line read from a file, which
+always arrives with a `\\n` on the end.
+
+## replace
+
+```python
+print("cat sat".replace("cat", "dog"))   # dog sat
+```
+
+Replaces **every** occurrence, not just the first.
+
+## Checking starts and ends
+
+```python
+url = "https://example.com/page"
+print(url.startswith("https"))    # True
+print(url.endswith(".html"))      # False
+```
+
+## Counting and finding
+
+```python
+print("banana".count("a"))      # 3
+print("banana".find("na"))      # 2
+```
+
+`.find()` returns the index of the first match, or `-1` if there is none.
+Careful: `-1` is falsy but also a valid-looking number, so compare explicitly
+against `-1` rather than relying on truthiness.
+
+## Changing case
+
+```python
+print("hello".upper())     # HELLO
+print("HELLO".lower())     # hello
+print("hello world".title())   # Hello World
+```
+
+> None of these change the original string -- they all **return a new one**.
+> Strings are immutable. `word.upper()` alone does nothing; you must use the
+> result.
+""", {
+    "prompt": "Given s = \\\"  Hello  \\\", print s with the spaces stripped.",
+    "starter": 's = "  Hello  "\n',
+    "expected": "Hello",
+}, 's = "  Hello  "\nprint(s.strip())')
+
+lesson("slicing", "Working with Strings", "Slicing", """
+# Slicing
+
+`[start:stop]` cuts a piece out of a string -- or a list. Start is included,
+stop is **excluded**.
+
+```python
+word = "python"
+print(word[0:3])    # pyt
+print(word[3:])     # hon
+print(word[:3])     # pyt
+```
+
+Leaving a side blank means "from the beginning" or "to the end".
+
+## Negative indices
+
+Counting from the end:
+
+```python
+print(word[-3:])    # hon
+print(word[-1])     # n
+```
+
+`word[-3:]` is the everyday way to say "the last three characters."
+
+## The step
+
+A third number is the stride:
+
+```python
+print(word[::2])    # pto
+print(word[::-1])   # nohtyp
+```
+
+`[::-1]` is the classic way to reverse a string. It reads as "whole string,
+backwards, one at a time."
+
+## Slicing never crashes
+
+Out-of-range slices are clamped instead of raising:
+
+```python
+print(word[0:100])   # python
+```
+
+Compare that to `word[100]`, which **does** raise `IndexError`. Slicing is
+forgiving; indexing is not.
+
+> Slices of a list work exactly the same way -- this is not string-specific.
+""", {
+    "prompt": "Print the first three characters of the string python.",
+    "starter": 'word = "python"\n',
+    "expected": "pyt",
+}, 'word = "python"\nprint(word[:3])')
+
+# ---------------------------------------------------------------- ch11: tuples and sets
+lesson("tuples", "Tuples and Sets", "Tuples", """
+# Tuples
+
+A tuple is like a list that cannot be changed. Round brackets instead of
+square.
+
+```python
+point = (3, 5)
+print(point[0])    # 3
+```
+
+Trying to change one fails:
+
+```python
+point[0] = 9
+```
+
+```
+TypeError: 'tuple' object does not support item assignment
+```
+
+That is the point. A tuple promises it will never change, so you can pass it
+around without wondering who might modify it.
+
+## Unpacking
+
+The useful part. A tuple can be split into named variables in one line:
+
+```python
+point = (3, 5)
+x, y = point
+print(x, y)    # 3 5
+```
+
+## Swapping
+
+This works in Python because of tuples:
+
+```python
+a = 1
+b = 2
+a, b = b, a
+print(a, b)    # 2 1
+```
+
+The right side builds a tuple `(2, 1)`, then unpacks it back. No temporary
+variable needed.
+
+## Returning several values
+
+A function returns one thing -- but that thing can be a tuple:
+
+```python
+def min_max(nums):
+    return min(nums), max(nums)
+
+low, high = min_max([4, 9, 2])
+print(low, high)    # 2 9
+```
+
+> One-item tuples need a trailing comma: `(5,)`. Without it, `(5)` is just the
+> number 5 in brackets.
+""", {
+    "prompt": "Swap a and b using tuple unpacking, then print them: a=1, b=2 should print 2 1",
+    "starter": "a = 1\nb = 2\n",
+    "expected": "2 1",
+}, 'a = 1\nb = 2\na, b = b, a\nprint(a, b)')
+
+lesson("sets", "Tuples and Sets", "Sets", """
+# Sets
+
+A set is a collection with **no duplicates** and **no order**. Curly braces,
+like a dict, but just values.
+
+```python
+nums = {1, 2, 2, 3, 3, 3}
+print(nums)
+```
+
+```
+{1, 2, 3}
+```
+
+The duplicates vanished on creation. That is the whole personality of a set.
+
+## Removing duplicates from a list
+
+This is the classic one-liner:
+
+```python
+words = ["a", "b", "a", "c"]
+unique = set(words)
+print(len(unique))        # 3
+print(sorted(unique))     # ['a', 'b', 'c']
+```
+
+You need `sorted()` to print it predictably -- a set has no order, so printing
+it directly can come out differently each run.
+
+## Membership is instant
+
+```python
+print(3 in {1, 2, 3})     # True
+```
+
+Checking `in` on a set or dict is far faster than on a list, because it does
+not scan. For big collections this matters.
+
+## Adding and removing
+
+```python
+s = {1, 2}
+s.add(3)
+s.discard(1)
+print(s)    # {2, 3}
+```
+
+`.discard()` removes if present and **never errors** -- unlike `.remove()`,
+which raises `KeyError` when the item is missing.
+
+> ⚠️ Empty set is `set()`, not `{}`. Curly braces alone make an empty *dict*.
+""", {
+    "prompt": "Given nums = [1, 2, 2, 3, 3, 3], print how many unique values there are.",
+    "starter": "nums = [1, 2, 2, 3, 3, 3]\n",
+    "expected": "3",
+}, 'nums = [1, 2, 2, 3, 3, 3]\nprint(len(set(nums)))')
+
+lesson("whichcollection", "Tuples and Sets", "Which One Do I Use?", """
+# Which One Do I Use?
+
+Four collections, four jobs.
+
+| Type | Syntax | Ordered | Changeable | Duplicates | Use when |
+|---|---|---|---|---|---|
+| `list` | `[1, 2]` | yes | yes | yes | a sequence you will grow or edit |
+| `tuple` | `(1, 2)` | yes | no | yes | a fixed group, like a coordinate |
+| `set` | `{1, 2}` | no | yes | no | uniqueness, or fast `in` checks |
+| `dict` | `{"a": 1}` | yes | yes | keys unique | labelled data, lookup by name |
+
+## The decision in plain words
+
+- Need to change it later? **list**
+- Must never change? **tuple**
+- Only care whether something is in there? **set**
+- Look things up by name? **dict**
+
+## Set operations
+
+Sets do maths from school:
+
+```python
+a = {1, 2, 3}
+b = {2, 3, 4}
+
+print(a & b)    # {2, 3}   both -- intersection
+print(a | b)    # {1,2,3,4} either -- union
+print(a - b)    # {1}      in a but not b -- difference
+```
+
+That `&` is the tidy way to answer "what do these two lists have in common?"
+
+## A realistic mix
+
+```python
+names = ["ada", "grace", "ada"]
+seen = set()
+for n in names:
+    seen.add(n)
+print(len(seen), sorted(seen))
+```
+
+```
+2 ['ada', 'grace']
+```
+
+> Start with a list every time. Convert to a set only when you need uniqueness
+> or speed, and convert back with `sorted()` when you need order.
+""", {
+    "prompt": "Given a = [1, 2, 3] and b = [2, 3, 4], print the values they have in common, sorted.",
+    "starter": "a = [1, 2, 3]\nb = [2, 3, 4]\n",
+    "expected": "[2, 3]",
+}, 'a = [1, 2, 3]\nb = [2, 3, 4]\nprint(sorted(set(a) & set(b)))')
+
+# ---------------------------------------------------------------- ch12: loop patterns
+lesson("nested", "Loop Patterns", "Nested Loops", """
+# Nested Loops
+
+A loop inside a loop. The inner loop runs **completely** for each step of the
+outer one.
+
+```python
+for i in range(1, 3):
+    for j in range(1, 3):
+        print(i, j)
+```
+
+```
+1 1
+1 2
+2 1
+2 2
+```
+
+Count the lines: the inner loop ran twice for `i=1`, then twice again for
+`i=2`. Outer count times inner count.
+
+## Building rows
+
+The usual shape -- build a string, then print it once per outer pass:
+
+```python
+for i in range(2):
+    row = ""
+    for j in range(3):
+        row = row + "*"
+    print(row)
+```
+
+```
+***
+***
+```
+
+`print` inside the inner loop would put each star on its own line. Accumulating
+into `row` and printing after the inner loop gives one line per row.
+
+## Careful with cost
+
+Nesting three loops over 1000 items each is a billion steps. Nested loops
+multiply. If a program feels slow, check for a loop inside a loop first.
+
+> `break` only leaves the loop it is in -- the outer loop keeps going. To leave
+> both, use a flag or move the work into a function and `return`.
+""", {
+    "prompt": "Use two nested loops to print a 2-by-3 block of stars: two lines, three stars each.",
+    "starter": "",
+    "expected": "***\n***",
+}, 'for i in range(2):\n    row = ""\n    for j in range(3):\n        row = row + "*"\n    print(row)')
+
+lesson("enumzip", "Loop Patterns", "enumerate and zip", """
+# enumerate and zip
+
+Two built-ins that remove most manual index bookkeeping.
+
+## enumerate -- item plus position
+
+```python
+for i, name in enumerate(["ada", "grace"]):
+    print(i, name)
+```
+
+```
+0 ada
+1 grace
+```
+
+Start counting at 1 with `start=1`:
+
+```python
+for i, name in enumerate(["ada", "grace"], start=1):
+    print(f"{i}. {name}")
+```
+
+```
+1. ada
+2. grace
+```
+
+## zip -- walk two lists together
+
+```python
+names = ["ada", "grace"]
+ages = [36, 45]
+
+for name, age in zip(names, ages):
+    print(f"{name} is {age}")
+```
+
+```
+ada is 36
+grace is 45
+```
+
+`zip` pairs the first of each, the second of each, and so on.
+
+> ⚠️ `zip` stops at the **shortest** list, silently. If the lists should be the
+> same length, check `len()` first -- a truncated loop is easy to miss.
+""", {
+    "prompt": "Zip names = [Ada, Grace] with ages = [36, 45] and print each as: Ada is 36",
+    "starter": 'names = ["Ada", "Grace"]\nages = [36, 45]\n',
+    "expected": "Ada is 36\nGrace is 45",
+}, 'names = ["Ada", "Grace"]\nages = [36, 45]\nfor name, age in zip(names, ages):\n    print(f"{name} is {age}")')
+
+lesson("comprehensions", "Loop Patterns", "List Comprehensions", """
+# List Comprehensions
+
+A loop that builds a list, written in one line. Once it clicks, you will use it
+constantly.
+
+Compare:
+
+```python
+squares = []
+for n in range(1, 4):
+    squares.append(n * n)
+```
+
+with:
+
+```python
+squares = [n * n for n in range(1, 4)]
+```
+
+Both produce `[1, 4, 9]`. The second says *"a list of `n*n`, for each `n`."*
+
+## The pattern
+
+```
+[ expression  for item in sequence ]
+```
+
+Read it right to left if that helps: for each item, produce the expression.
+
+## With a filter
+
+Add `if` at the end:
+
+```python
+nums = [1, 2, 3, 4, 5, 6]
+evens = [n for n in nums if n % 2 == 0]
+print(evens)
+```
+
+```
+[2, 4, 6]
+```
+
+## With a transform and a filter
+
+```python
+print([n * 10 for n in nums if n > 3])
+```
+
+```
+[40, 50, 60]
+```
+
+## Dicts too
+
+```python
+print({n: n * n for n in range(1, 4)})
+```
+
+```
+{1: 1, 2: 4, 3: 9}
+```
+
+> Keep it to one `for` and at most one `if`. The moment a comprehension needs
+> squinting, a plain loop is better code. Shorter is not the same as clearer.
+""", {
+    "prompt": "Use a list comprehension to build the squares of 1, 2, 3 and print the list.",
+    "starter": "",
+    "expected": "[1, 4, 9]",
+}, 'print([n * n for n in range(1, 4)])')
+
+
 # ---------------------------------------------------------------- emit
+# Lessons are defined in whatever order is convenient; this list decides the
+# order they appear in the course. A chapter missing from here is appended last
+# rather than silently dropped.
+CHAPTER_ORDER = [
+    "Getting Started",
+    "Variables and Data",
+    "Working with Strings",
+    "Making Decisions",
+    "Loops",
+    "Loop Patterns",
+    "Lists",
+    "Tuples and Sets",
+    "Dictionaries",
+    "Functions",
+    "Handling Errors",
+    "Working with Files",
+]
+
+
 def build():
+    rank = {name: i for i, name in enumerate(CHAPTER_ORDER)}
+    ordered = sorted(
+        L,
+        key=lambda row: (rank.get(row[1], len(CHAPTER_ORDER)), L.index(row)),
+    )
     out = []
-    for id, chapter, title, body, exercise, solution in L:
+    for id, chapter, title, body, exercise, solution in ordered:
         entry = {"id": id, "chapter": chapter, "title": title, "body": body}
         if exercise:
             entry["exercise"] = exercise

@@ -18,21 +18,28 @@ Stop it with `ctrl+c`.
 
 ## What's inside
 
-**30 lessons across 9 chapters:**
+**39 lessons across 12 chapters:**
 
-| Chapter | Lessons |
-|---|---|
-| Getting Started | Welcome to Python, `print()`, Comments, Errors Are Normal |
-| Variables and Data | Variables, Numbers and Math, Strings, f-strings, Reading Numbers |
-| Making Decisions | Booleans, `if`/`else`, `elif` |
-| Loops | `for` and `range`, `while`, `break`/`continue` |
-| Lists | Lists, Changing Lists, Looping Over Lists |
-| Functions | Functions, Parameters and `return`, Putting It Together |
-| Dictionaries | Dictionaries, Counting with a Dict, Looping Over a Dict |
-| Handling Errors | `try`/`except`, Common Errors, Raising Your Own |
-| Working with Files | Reading Files, Writing Files, Putting It Together |
+| # | Chapter | Lessons |
+|---|---|---|
+| 1 | Getting Started | Welcome to Python, `print()`, Comments, Errors Are Normal |
+| 2 | Variables and Data | Variables, Numbers and Math, Strings, f-strings, Reading Numbers |
+| 3 | Working with Strings | Splitting and Joining, Useful String Methods, Slicing |
+| 4 | Making Decisions | Booleans, `if`/`else`, `elif` |
+| 5 | Loops | `for` and `range`, `while`, `break`/`continue` |
+| 6 | Loop Patterns | Nested Loops, `enumerate` and `zip`, List Comprehensions |
+| 7 | Lists | Lists, Changing Lists, Looping Over Lists |
+| 8 | Tuples and Sets | Tuples, Sets, Which One Do I Use? |
+| 9 | Dictionaries | Dictionaries, Counting with a Dict, Looping Over a Dict |
+| 10 | Functions | Functions, Parameters and `return`, Putting It Together |
+| 11 | Handling Errors | `try`/`except`, Common Errors, Raising Your Own |
+| 12 | Working with Files | Reading Files, Writing Files, Putting It Together |
 
 Every lesson ends with a graded exercise.
+
+The order is deliberate: strings are introduced before conditions, and
+collection types come after you have looped over something. If you reorder
+chapters, edit `CHAPTER_ORDER` in `content/build_lessons.py`.
 
 ## Features
 
