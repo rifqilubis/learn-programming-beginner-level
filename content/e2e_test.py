@@ -98,6 +98,39 @@ r = post("/api/run", {"code": 'print(open("sub/x.txt").read().strip())', "files"
 if r.get("stdout", "").strip() != "deep":
     fails.append(("nested-file", f"nested seed failed: {r}"))
 
+# --- students must be able to import a file they wrote (needs cwd on sys.path) ---
+r = post("/api/run", {"code": "import helper\nprint(helper.VALUE)",
+                      "files": {"helper.py": "VALUE = 42\n"}})
+if r.get("stdout", "").strip() != "42":
+    fails.append(("local-import", f"could not import a seeded module: {r}"))
+
+# --- tracebacks must name the student's file and a real line number ---
+r = post("/api/run", {"code": "print(1)\nprint(2)\nprint(1/0)"})
+stderr = r.get("stderr", "")
+if 'File "main.py", line 3' not in stderr:
+    fails.append(("traceback-line", f"traceback lacks main.py line 3: {stderr!r}"))
+if "/tmp/lesson-" in stderr:
+    fails.append(("traceback-path", f"temp dir leaked into traceback: {stderr!r}"))
+if r.get("error") != "ZeroDivisionError: division by zero":
+    fails.append(("traceback-error", f"error field wrong: {r.get('error')!r}"))
+
+# --- a failed check must explain itself, not just say "not quite" ---
+r = post("/api/check", {"code": "print(1/0)", "expected": "3"})
+if r.get("passed") is not False:
+    fails.append(("check-reason", "a crashing program must not pass"))
+if "ZeroDivisionError" not in (r.get("reason") or ""):
+    fails.append(("check-reason", f"no reason given for failure: {r}"))
+
+# --- PYTHONPATH must be ignored (-E), or a lesson could be hijacked by env ---
+r = post("/api/run", {"code": "import sys; print('/tmp/evil' in sys.path)"})
+if r.get("stdout", "").strip() != "False":
+    fails.append(("env-isolation", f"PYTHONPATH-style paths present: {r.get('stdout')!r}"))
+
+# --- exercises must not interpret the runner's own main.py as a lesson file ---
+r = post("/api/run", {"code": 'print(open("main.py").read()[:6])'})
+if r.get("stdout", "").strip() != "print(":
+    fails.append(("main-file", f"student code is not main.py: {r}"))
+
 # --- every published solution must be correct and pass its own exercise ---
 for lesson in lessons:
     ex = lesson.get("exercise")
@@ -123,4 +156,6 @@ print("PASS: wrong answers rejected")
 print("PASS: infinite loop killed, output capped, hard-exit survived")
 print("PASS: file seeding, temp-dir isolation, no leaks between runs")
 print("PASS: path traversal refused, nested paths allowed")
+print("PASS: local module imports work, tracebacks name the student's own line")
+print("PASS: failed checks explain why, PYTHONPATH ignored")
 print("PASS: every published solution passes, every exercise has hints")

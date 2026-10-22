@@ -8,6 +8,18 @@ It is bound to localhost, runs in an isolated subprocess with a timeout and an
 output cap -- but that is NOT a real sandbox. Do not expose this to the
 internet. For a public version, run student code inside a container with no
 network access.
+
+HOW STUDENT CODE RUNS: the snippet is written to main.py inside a throwaway
+directory and run as `python3 -E -s main.py`.
+
+  -E  ignore PYTHONPATH and other PYTHON* environment variables
+  -s  do not add the user's site-packages directory
+
+We deliberately do NOT use -I. It would also strip the script's own directory
+from sys.path, which breaks two things a beginner course needs: `import` of a
+file the student just wrote, and tracebacks that point at the real line in
+their own code. -E -s keeps the isolation that matters here while letting
+lessons teach modules and error messages honestly.
 """
 
 import json
@@ -23,6 +35,11 @@ TIMEOUT_SECONDS = 5
 MAX_OUTPUT = 8000
 HOST = "127.0.0.1"
 PORT = 8000
+
+# Student code is written to this file in the temp dir. Lessons that teach
+# imports should not seed a file with this name, or the snippet wins and the
+# lesson's own file is overwritten.
+MAIN_FILE = "main.py"
 
 
 def safe_files(files) -> dict:
@@ -40,6 +57,25 @@ def safe_files(files) -> dict:
     return clean
 
 
+def name_error(returncode: int, stderr: str) -> str:
+    """Explain a non-zero exit, including the common `os._exit` failure.
+
+    A snippet that calls sys.exit()/os._exit() before printing leaves the
+    student staring at silent output, so this names the cause instead.
+    """
+    if returncode > 0:
+        # Uncaught exception: Python already printed the traceback. Point at
+        # the last line, which is the actual error type and message.
+        lines = [line for line in stderr.strip().splitlines() if line.strip()]
+        if lines:
+            return lines[-1].strip()
+        return f"The program stopped with exit code {returncode}."
+    if returncode < 0:
+        return (f"The program was killed by signal {-returncode}. A call like "
+                f"os._exit() or an infinite loop can do this.")
+    return ""
+
+
 def run_python(code: str, files=None) -> dict:
     """Run a snippet in a fresh interpreter, inside a throwaway directory.
 
@@ -53,9 +89,14 @@ def run_python(code: str, files=None) -> dict:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding="utf-8")
 
+        # Run from a file rather than -c so tracebacks and `import` both point
+        # at the student's own directory. See the module docstring.
+        script = Path(workdir, MAIN_FILE)
+        script.write_text(code, encoding="utf-8")
+
         try:
             proc = subprocess.run(
-                [sys.executable, "-I", "-c", code],
+                [sys.executable, "-E", "-s", MAIN_FILE],
                 capture_output=True,
                 text=True,
                 timeout=TIMEOUT_SECONDS,
@@ -73,8 +114,18 @@ def run_python(code: str, files=None) -> dict:
     return {
         "ok": proc.returncode == 0,
         "stdout": proc.stdout[:MAX_OUTPUT],
-        "stderr": proc.stderr[:MAX_OUTPUT],
+        "stderr": clean_stderr(proc.stderr, workdir)[:MAX_OUTPUT],
+        "error": name_error(proc.returncode, proc.stderr),
     }
+
+
+def clean_stderr(stderr: str, workdir: str) -> str:
+    """Hide the throwaway directory so tracebacks name the student's own file.
+
+    Without this a beginner sees File "/tmp/lesson-c69ap7wl/main.py", line 3,
+    which reads like someone else's problem. The line number is what matters.
+    """
+    return stderr.replace(workdir.rstrip("/") + "/", "")
 
 
 def normalize(text: str) -> str:
@@ -138,6 +189,15 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             result = run_python(code, payload.get("files"))
             result["passed"] = result["ok"] and normalize(result["stdout"]) == normalize(expected)
+            if not result["passed"]:
+                # Say *why* when the program died, so "Not quite" is not the
+                # only feedback a beginner gets.
+                if not result["ok"] and result.get("error"):
+                    result["reason"] = result["error"]
+                elif not result["ok"]:
+                    result["reason"] = "The program exited without finishing."
+                else:
+                    result["reason"] = "The output did not match what the exercise asked for."
             self._send_json(result)
             return
 

@@ -131,6 +131,64 @@ if (fileNav) {
   check('file: lesson present', false, 'Reading Files lesson not found');
 }
 
+// ---- module-import lesson: the seeded .py file must be visible and usable ----
+const modNav = navItems().find(b => /Writing Your Own Module/.test(b.textContent));
+if (modNav) {
+  modNav.click();
+  await tick(350);
+  check('module: seeded file listed', text('#exercise-files').includes('greeting.py'));
+  $('#code').value = 'import greeting\nprint(greeting.hello("Ana"))';
+  $('#submit-btn').click();
+  await tick(900);
+  check('module: import lesson passes', text('#output').includes('Passed'), text('#output'));
+} else {
+  check('module: lesson present', false, 'Writing Your Own Module lesson not found');
+}
+
+// ---- a crash must be reported as the error, not as a wrong answer ----
+const traceNav = navItems().find(b => /Reading Tracebacks/.test(b.textContent));
+if (traceNav) {
+  traceNav.click();
+  await tick(350);
+  $('#code').value = 'print(fruits[99])';
+  $('#submit-btn').click();
+  await tick(900);
+  const out = text('#output');
+  check('crash: names the error type', /NameError/.test(out), out);
+  check('crash: not reported as wrong answer', !out.includes('Not quite'), out);
+  check('crash: says it stopped', /stopped with an error/.test(out), out);
+} else {
+  check('traceback: lesson present', false, 'Reading Tracebacks lesson not found');
+}
+
+// ---- every lesson must render cleanly (no leaked markdown) ----
+// This is the class of bug that static analysis cannot see: a lesson whose
+// markdown the renderer did not understand shows raw ** or ``` on screen.
+{
+  const leaks = [];
+  for (const btn of navItems()) {
+    btn.click();
+    await tick(45);
+    const body = $('.lesson-body');
+    const label = btn.textContent.trim();
+    if (!body.querySelector('h1')) leaks.push(`${label}: no heading`);
+
+    // Remove code (where # and ** are legitimate) before looking for markup.
+    const clone = body.cloneNode(true);
+    clone.querySelectorAll('pre, code').forEach(n => n.remove());
+    const prose = clone.textContent;
+    if (prose.includes('**')) leaks.push(`${label}: raw ** in prose`);
+    if (prose.includes('```')) leaks.push(`${label}: raw code fence`);
+    if (/\n#{1,6}\s/.test(prose)) leaks.push(`${label}: raw heading marker`);
+
+    for (const table of body.querySelectorAll('table')) {
+      if (!table.querySelector('th')) leaks.push(`${label}: table with no header`);
+      if (!table.querySelector('td')) leaks.push(`${label}: table with no cells`);
+    }
+  }
+  check('render: no leaked markdown in any lesson', leaks.length === 0, leaks.slice(0, 6).join(' | '));
+}
+
 // ---- navigating resets per-lesson state ----
 navItems()[2].click();
 await tick(350);

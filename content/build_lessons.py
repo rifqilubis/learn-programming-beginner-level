@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """One-shot generator for content/lessons.json. Not shipped in the repo."""
 import json
+import sys
 from pathlib import Path
 
 L = []  # (id, chapter, title, body, exercise|None, solution|None)
@@ -1364,7 +1365,7 @@ with open("notes.txt") as f:
 > panel above the code box to see its contents.
 """, {
     "prompt": "Read notes.txt and print its contents. The file already exists.",
-    "starter": 'with open("notes.txt") as f:\n    print(f.read())\n',
+    "starter": 'with open("notes.txt") as f:\n    text = f.read()\n',
     "expected": "hello",
     "files": {"notes.txt": "hello\n"},
 }, 'with open("notes.txt") as f:\n    print(f.read().strip())')
@@ -2030,6 +2031,1774 @@ print({n: n * n for n in range(1, 4)})
 }, 'print([n * n for n in range(1, 4)])')
 
 
+# ---------------------------------------------------------------- ch12: none and scope
+lesson("none", "None and Scope", "None", """
+# None
+
+`None` is Python's way of saying *no value here*. It is not `0`, not `""`, and
+not `False` -- it is the absence of a value.
+
+You have already met it. This function prints but never returns:
+
+```python
+def greet():
+    print("hello")
+
+result = greet()
+print(result)
+```
+
+```
+hello
+None
+```
+
+`greet()` returns `None` because it has no `return`. That is the single most
+common source of `None` in your programs: **a function that forgot to return**.
+
+## Checking for None
+
+Use `is`, not `==`:
+
+```python
+if result is None:
+    print("nothing came back")
+```
+
+`is` asks "is this the very same object?" and there is exactly one `None`, so
+it is both correct and the idiomatic spelling. Keep `==` for comparing values
+like numbers and text.
+
+## None is falsy
+
+```python
+if not result:
+    print("empty")
+```
+
+This catches `None`, but it also catches `0`, `""` and `[]`. When you
+specifically mean "no value", say `is None` so the reader knows you meant it.
+
+> A function that returns `None` by accident usually means a missing `return`.
+> If you see `None` printed where you expected a number, look for that first.
+""", {
+    "prompt": "The function below prints but does not return. Fix it so find_min prints 1.",
+    "starter": 'def find_min(numbers):\n    print(min(numbers))\n\nprint(find_min([3, 8, 1]))\n',
+    "expected": "1",
+}, 'def find_min(numbers):\n    return min(numbers)\n\nprint(find_min([3, 8, 1]))')
+
+lesson("scope", "None and Scope", "Local and Global Scope", """
+# Local and Global Scope
+
+A variable created **inside** a function only exists inside that function.
+
+```python
+def make_greeting():
+    message = "hi"
+    return message
+
+make_greeting()
+print(message)
+```
+
+```
+NameError: name 'message' is not defined
+```
+
+`message` is *local* to `make_greeting`. When the function ends, it is gone.
+This is a feature, not a limitation: two functions can both use the name
+`total` without interfering.
+
+## Reading a global is fine
+
+A function can *read* a variable defined outside it:
+
+```python
+rate = 0.2
+
+def with_tax(price):
+    return price + price * rate
+```
+
+`with_tax` can see `rate` because nothing shadows it locally.
+
+## Assigning creates a new local
+
+This is the trap:
+
+```python
+count = 0
+
+def bump():
+    count = count + 1     # UnboundLocalError
+```
+
+Because `bump` *assigns* to `count`, Python treats `count` as local for the
+whole function -- so `count + 1` reads a local that does not exist yet.
+The error is `UnboundLocalError`, and it confuses everyone the first time.
+
+## The fix: pass it in, return it out
+
+```python
+def bump(count):
+    return count + 1
+
+count = bump(count)
+```
+
+Reaching for `global` "fixes" this too, but it makes data flow invisible. Pass
+values in as parameters and return the new value instead. It is clearer, and it
+is easier to test.
+
+> Rule of thumb: a function should depend on its parameters and its return
+> value, not on variables that happen to be lying around outside it.
+""", {
+    "prompt": "bump() raises UnboundLocalError. Fix it by passing count in and returning the new value, so the output is 1.",
+    "starter": 'count = 0\n\ndef bump():\n    count = count + 1\n\nbump()\nprint(count)\n',
+    "expected": "1",
+}, 'count = 0\n\ndef bump(n):\n    return n + 1\n\ncount = bump(count)\nprint(count)')
+
+# ---------------------------------------------------------------- ch13: classes
+lesson("classes", "Classes", "Classes and Objects", """
+# Classes and Objects
+
+A class bundles **data** and the **functions that work on it** into one named
+thing. You have used classes already: every string is a `str` object, which is
+why `"hi".upper()` works.
+
+```python
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+rex = Dog("Rex", 3)
+print(rex.name)
+print(rex.age)
+```
+
+```
+Rex
+3
+```
+
+## Reading the pieces
+
+- `class Dog:` -- defines a new type, capitalised by convention.
+- `__init__` -- runs automatically when you create a `Dog(...)`. The double
+  underscores mean "Python calls this for you".
+- `self` -- the particular dog being created. `self.name = name` stores the
+  value on that object.
+- `Dog("Rex", 3)` -- creates one object, called an *instance*.
+
+You never write `self` when calling. Python fills it in:
+
+```python
+rex = Dog("Rex", 3)   # self is rex, name is "Rex", age is 3
+```
+
+## Why bother?
+
+Without a class you would carry `name` and `age` around as loose variables and
+pass both to every function. With one, they travel together:
+
+```python
+dogs = [Dog("Rex", 3), Dog("Pip", 1)]
+for dog in dogs:
+    print(dog.name)
+```
+
+That list holds whole dogs, not parallel lists of names and ages that can drift
+out of sync.
+
+> `__init__` is not "the constructor" in the C++ sense and it does not return
+> anything. It fills in a new object that already exists.
+""", {
+    "prompt": "Create a class Book whose __init__ stores title and pages, then print the title of Book(\"Dune\", 412).",
+    "starter": 'class Book:\n    def __init__(self, title, pages):\n        pass\n\nb = Book("Dune", 412)\nprint(b.title)\n',
+    "expected": "Dune",
+}, 'class Book:\n    def __init__(self, title, pages):\n        self.title = title\n        self.pages = pages\n\nb = Book("Dune", 412)\nprint(b.title)')
+
+lesson("methods", "Classes", "Methods", """
+# Methods
+
+A function defined inside a class is called a **method**. It always takes
+`self` first, which is how it reaches the object's own data.
+
+```python
+class Counter:
+    def __init__(self):
+        self.count = 0
+
+    def add(self):
+        self.count = self.count + 1
+
+c = Counter()
+c.add()
+c.add()
+print(c.count)
+```
+
+```
+2
+```
+
+`self.count` means "the count belonging to *this* counter". Because each object
+has its own, two counters do not share a number.
+
+## Methods that take arguments
+
+```python
+class Counter:
+    def __init__(self):
+        self.count = 0
+
+    def add(self, amount):
+        self.count = self.count + amount
+
+c = Counter()
+c.add(5)
+print(c.count)     # 5
+```
+
+Note the call: `c.add(5)`, not `c.add(c, 5)`. Python passes `c` as `self` for
+you.
+
+## Forgetting self
+
+The most common beginner error:
+
+```python
+class Counter:
+    def add():
+        return 1
+
+c = Counter()
+c.add()
+```
+
+```
+TypeError: Counter.add() takes 0 positional arguments but 1 was given
+```
+
+The "1 was given" is the object itself, arriving as `self`. When you see that
+error in a class, add `self` as the first parameter.
+
+## __str__ makes printing nicer
+
+```python
+class Counter:
+    def __init__(self):
+        self.count = 0
+
+    def __str__(self):
+        return f"Counter({self.count})"
+
+print(Counter())
+```
+
+```
+Counter(0)
+```
+
+Without `__str__`, printing an object gives `<__main__.Counter object at
+0x...>`, which tells you nothing.
+
+> Pick the method names your objects suggest: `add`, `total`, `describe`. If
+> you find yourself writing `do_stuff(self, x, y)`, the class may be doing too
+> much.
+""", {
+    "prompt": "Give Bank a deposit(amount) method so deposit(50) then print(balance) shows 50.",
+    "starter": 'class Bank:\n    def __init__(self):\n        self.balance = 0\n\nb = Bank()\nb.deposit(50)\nprint(b.balance)\n',
+    "expected": "50",
+}, 'class Bank:\n    def __init__(self):\n        self.balance = 0\n\n    def deposit(self, amount):\n        self.balance = self.balance + amount\n\nb = Bank()\nb.deposit(50)\nprint(b.balance)')
+
+lesson("inheritance", "Classes", "Inheritance", """
+# Inheritance
+
+A class can build on another, keeping its data and methods and adding its own.
+
+```python
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return "Woof"
+
+a = Animal("Generic")
+d = Dog("Rex")
+print(a.speak())
+print(d.speak())
+```
+
+```
+...
+Woof
+```
+
+`class Dog(Animal)` means "Dog is an Animal, plus changes". `Dog` inherits
+`__init__`, so `Dog("Rex")` sets `name` without you rewriting it. It overrides
+`speak`.
+
+## Calling the parent's version
+
+Sometimes you want the parent's work *and* your own:
+
+```python
+class Puppy(Dog):
+    def __init__(self, name, weeks):
+        super().__init__(name)      # let Dog set up name
+        self.weeks = weeks
+```
+
+`super()` gives you the parent class. Calling `super().__init__(name)` runs the
+parent's setup, then you add `weeks`. Forgetting this is a classic bug: the
+object exists but `name` was never set.
+
+## When not to inherit
+
+Inheritance means **is-a**. A `Dog` *is an* `Animal`. That is the test.
+
+It is not for sharing code between unrelated things. A `Car` and a `User` both
+having an `id` does not make one a subclass of the other. When the relationship
+is "has-a" or "can-do", plain attributes or a shared function are clearer.
+
+> Prefer simple composition until inheritance is obviously right: an object
+> holding another object is easier to follow than a five-level class tree.
+""", {
+    "prompt": "Make Cat a subclass of Animal that overrides speak() to return \"Meow\", so the output is Meow.",
+    "starter": 'class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return "..."\n\nclass Cat:\n    pass\n\nprint(Cat("Tom").speak())\n',
+    "expected": "Meow",
+}, 'class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return "..."\n\nclass Cat(Animal):\n    def speak(self):\n        return "Meow"\n\nprint(Cat("Tom").speak())')
+
+# ---------------------------------------------------------------- ch14: modules and stdlib
+lesson("imports", "Modules and the Standard Library", "Importing Modules", """
+# Importing Modules
+
+A **module** is a file of Python code you can reuse. `import` loads one.
+
+```python
+import math
+
+print(math.sqrt(16))
+print(math.pi)
+```
+
+```
+4.0
+3.141592653589793
+```
+
+The module name is a prefix, so you always see where `sqrt` came from. That is
+worth the typing.
+
+## Three forms
+
+```python
+import math                 # math.sqrt(16)
+from math import sqrt       # sqrt(16)
+from math import sqrt as s  # s(16)
+```
+
+Prefer plain `import math`. When you later read `sqrt(16)` alone you may not
+remember which library it came from, and `math.sqrt` is unambiguous.
+
+## A local file can shadow a library
+
+Python looks in your own folder **before** the standard library. So if you
+create a file called `random.py` next to your program, then:
+
+```python
+import random        # imports YOUR file, not the library
+```
+
+This produces confusing errors like `AttributeError: module 'random' has no
+attribute 'choice'`. The rule: **never name a file after a module you also
+import** -- `random.py`, `math.py`, `json.py`, `csv.py`, `string.py`. If a
+library suddenly seems to be missing its functions, check for a name clash
+first.
+
+The important point: **the names you import become ordinary variables** in your
+file, so two modules offering the same name can clash.
+
+## Importing your own file
+
+Any `.py` file next to your program is importable by its filename, without the
+`.py`:
+
+```
+project/
+  main.py
+  helpers.py
+```
+
+```python
+# main.py
+import helpers
+
+print(helpers.double(4))
+```
+
+```python
+# helpers.py
+def double(n):
+    return n * 2
+```
+
+Nothing special is needed. Both files just sit in the same folder. Modules are
+only found in the folder you run from and Python's own library -- which is why
+a misspelled filename raises `ModuleNotFoundError`.
+
+> An import runs the whole file once, top to bottom, the first time it is
+> imported. Put code that *does* things behind a `if __name__ == "__main__":`
+> guard (a later lesson) so importing a file does not start the program.
+""", {
+    "prompt": "Use math to print the square root of 81. The expected output is 9.0.",
+    "starter": "",
+    "expected": "9.0",
+}, 'import math\n\nprint(math.sqrt(81))')
+
+lesson("stdlib", "Modules and the Standard Library", "The Standard Library", """
+# The Standard Library
+
+Python ships with a large library. You have already met `math`. A few more you
+will use constantly:
+
+| Module | For | Example |
+| --- | --- | --- |
+| `math` | numbers beyond arithmetic | `math.sqrt(9)`, `math.floor(2.7)` |
+| `random` | picking at random | `random.choice(["a", "b"])` |
+| `datetime` | dates and times | `datetime.date.today()` |
+| `json` | saving data as text | `json.dumps({"a": 1})` |
+| `csv` | spreadsheets | `csv.reader(f)` |
+| `pathlib` | file paths | `Path("a") / "b.txt"` |
+
+## random must be seeded to be predictable
+
+`random` gives different answers on every run, which is the point. For a
+lesson, or a test, you want the same answer every time:
+
+```python
+import random
+
+random.seed(42)
+print(random.randint(1, 6))
+print(random.choice(["red", "green", "blue"]))
+```
+
+Seeding sets the starting point, so the same seed produces the same sequence.
+Tests use this to avoid flaky results.
+
+## math.floor vs int
+
+```python
+import math
+
+print(math.floor(-2.5))   # -3  (down)
+print(int(-2.5))          # -2  (towards zero)
+```
+
+They disagree on negatives. `floor` always goes down; `int` always goes towards
+zero. Use `int` for "chop off the decimals" and `floor` for real rounding down.
+
+## datetime
+
+```python
+import datetime
+
+today = datetime.date(2024, 1, 31)
+print(today.year)
+print(today.month)
+```
+
+The standard library is the first place to look before writing your own
+function. Somebody has usually already written it, tested it, and documented the
+edge cases.
+
+> `import this` in a Python shell prints the Zen of Python. It is a good read
+> once a year.
+""", {
+    "prompt": "Seed random with 42, import choice from random under another name, and print pick([\"red\", \"green\", \"blue\"]). The output is blue.",
+    "starter": "import random\n",
+    "expected": "blue",
+}, 'import random\nfrom random import choice as pick\n\nrandom.seed(42)\nprint(pick(["red", "green", "blue"]))')
+
+lesson("ownmodule", "Modules and the Standard Library", "Writing Your Own Module", """
+# Writing Your Own Module
+
+Big programs are not one long file. You split helpers into a module and import
+them.
+
+The exercise below already has `greeting.py` next to your program:
+
+```python
+# greeting.py
+def hello(name):
+    return f"Hello, {name}!"
+```
+
+Use it from `main.py`:
+
+```python
+# main.py
+import greeting
+
+print(greeting.hello("Ana"))
+```
+
+```
+Hello, Ana!
+```
+
+That is the whole idea. The file name *is* the module name.
+
+## Import functions directly
+
+```python
+from greeting import hello
+
+print(hello("Ana"))
+```
+
+`from x import y` copies `y` into your file. Handy for one function; confusing
+once a file imports from six modules.
+
+## What the import executes
+
+Importing runs the module top to bottom, once. If `greeting.py` had
+
+```python
+print("greeting.py loaded")
+```
+
+at the top level, that line would run during `import greeting`. This is why
+modules should mostly define functions and avoid doing work on import.
+
+The guard fixes it:
+
+```python
+if __name__ == "__main__":
+    print("only runs when executed directly")
+```
+
+Inside a module, `__name__` is the module's name (`"greeting"`). In the file you
+run directly, it is `"__main__"`. So that block runs only for the main program,
+never on import.
+
+> Split a file when it gets long enough to need scrolling, or when a group of
+> functions clearly belongs together. Not before.
+""", {
+    "prompt": "greeting.py already exists. Import it and print greeting.hello(\"Ana\"), which should give: Hello, Ana!",
+    "starter": "",
+    "expected": "Hello, Ana!",
+    "files": {"greeting.py": 'def hello(name):\n    return f"Hello, {name}!"\n'},
+}, 'import greeting\n\nprint(greeting.hello("Ana"))')
+
+# ---------------------------------------------------------------- ch15: sorting and lambdas
+lesson("sorting", "Sorting and Lambdas", "sort and sorted", """
+# sort and sorted
+
+Two ways to put a list in order. They are not the same.
+
+```python
+nums = [3, 1, 2]
+
+nums.sort()          # changes nums in place
+print(nums)          # [1, 2, 3]
+
+letters = ["b", "c", "a"]
+ordered = sorted(letters)   # returns a NEW list
+print(ordered)       # ['a', 'b', 'c']
+print(letters)       # ['b', 'c', 'a']  unchanged
+```
+
+- `.sort()` -- a method, edits the list, returns `None`.
+- `sorted()` -- a function, leaves the original alone, returns a new list.
+
+`.sort()` returning `None` catches everyone once:
+
+```python
+nums = [3, 1, 2]
+nums = nums.sort()
+print(nums)      # None
+```
+
+If you print `None` after sorting, that is why. Either call `.sort()` without
+assigning, or use `sorted()`.
+
+## Backwards
+
+```python
+print(sorted([3, 1, 2], reverse=True))
+```
+
+```
+[3, 2, 1]
+```
+
+## Strings sort by character code
+
+```python
+print(sorted(["banana", "Apple", "cherry"]))
+```
+
+```
+['Apple', 'banana', 'cherry']
+```
+
+Capital letters come before lowercase, so `"Apple"` leads. For a
+case-insensitive sort you need a `key` -- the next lesson.
+
+> `sorted()` works on any sequence, including the characters of a string and the
+> keys of a dict. `.sort()` only exists on lists.
+""", {
+    "prompt": "Sort the list in place so it prints in ascending order.",
+    "starter": "nums = [5, 2, 9, 1]\n",
+    "expected": "[1, 2, 5, 9]",
+}, 'nums = [5, 2, 9, 1]\nnums.sort()\nprint(nums)')
+
+lesson("keyfunctions", "Sorting and Lambdas", "Sorting with key", """
+# Sorting with key
+
+Real data is rarely a plain list of numbers. `key` tells Python *what to sort
+by*.
+
+```python
+words = ["banana", "Apple", "cherry"]
+print(sorted(words, key=str.lower))
+```
+
+```
+['Apple', 'banana', 'cherry']
+```
+
+`key=str.lower` means: for each word, compare its lowercase form. The original
+words are untouched -- `key` only decides the order.
+
+## Sorting records
+
+```python
+people = [
+    {"name": "Ana", "age": 31},
+    {"name": "Bo", "age": 25},
+]
+
+by_age = sorted(people, key=lambda p: p["age"])
+print(by_age[0]["name"])
+```
+
+```
+Bo
+```
+
+`lambda p: p["age"]` is a tiny unnamed function: "given `p`, return `p["age"]`".
+A `lambda` is just a function you did not bother naming.
+
+## The same thing with a named function
+
+```python
+def age_of(person):
+    return person["age"]
+
+by_age = sorted(people, key=age_of)
+```
+
+This is often clearer, and it can be given a docstring or tested. Reach for
+`lambda` when the expression is short enough to read inline.
+
+## Sorting on several fields
+
+Return a tuple and Python compares it left to right:
+
+```python
+sorted(people, key=lambda p: (p["age"], p["name"]))
+```
+
+That sorts by age, and breaks ties by name.
+
+> If a `key` needs more than one short expression, write a named function. A
+> three-line `lambda` is a sign you wanted `def`.
+""", {
+    "prompt": "Sort the words case-insensitively so the output is ['Apple', 'banana', 'cherry'].",
+    "starter": 'words = ["banana", "Apple", "cherry"]\n',
+    "expected": "['Apple', 'banana', 'cherry']",
+}, 'words = ["banana", "Apple", "cherry"]\nprint(sorted(words, key=str.lower))')
+
+lesson("lambdas", "Sorting and Lambdas", "The Built-in Helpers", """
+# The Built-in Helpers
+
+Python has small functions that replace the loops you would otherwise write by
+hand. All of these take a sequence:
+
+| Function | Answers |
+| --- | --- |
+| `sum(xs)` | total |
+| `min(xs)` / `max(xs)` | smallest / largest |
+| `len(xs)` | how many |
+| `any(xs)` | is at least one true? |
+| `all(xs)` | are they all true? |
+| `sorted(xs)` | a sorted copy |
+
+```python
+nums = [4, 8, 1]
+
+print(sum(nums))     # 13
+print(max(nums))     # 8
+print(min(nums))     # 1
+print(len(nums))     # 3
+```
+
+## any and all
+
+```python
+scores = [80, 45, 90]
+
+print(any(s < 50 for s in scores))   # True
+print(all(s >= 50 for s in scores))  # False
+```
+
+`any(... for ...)` is a generator expression -- it feeds values to `any` one at
+a time, without building a list. Read it as "is there any score under 50?".
+
+## max with a key
+
+`max` accepts `key`, just like `sorted`:
+
+```python
+people = [{"name": "Ana", "age": 31}, {"name": "Bo", "age": 25}]
+oldest = max(people, key=lambda p: p["age"])
+print(oldest["name"])
+```
+
+```
+Ana
+```
+
+## These do not replace every loop
+
+A `for` loop is still the right tool when you must *do* something per item --
+print, write a file, call an API. `sum` and friends are for *computing one
+answer* from a sequence.
+
+> Writing `total = 0` then `for n in nums: total += n` is correct but noisy.
+> `sum(nums)` says what you meant in four characters.
+""", {
+    "prompt": "Using the helper functions, print the largest score and the total on separate lines (output: 90 then 215).",
+    "starter": 'scores = [80, 45, 90]\n',
+    "expected": "90\n215",
+}, 'scores = [80, 45, 90]\nprint(max(scores))\nprint(sum(scores))')
+
+# ---------------------------------------------------------------- ch16: data formats
+lesson("json", "Data Formats", "JSON", """
+# JSON
+
+JSON is text that represents data. It looks like Python literals, and every
+language can read it -- which is why APIs and config files use it.
+
+```python
+import json
+
+data = {"name": "Ana", "age": 31, "tags": ["admin", "editor"]}
+text = json.dumps(data)
+print(text)
+```
+
+```
+{"name": "Ana", "age": 31, "tags": ["admin", "editor"]}
+```
+
+`dumps` means **d**ump **s**tring: Python value -> JSON text.
+
+## Reading it back
+
+```python
+text = '{"name": "Ana", "age": 31}'
+data = json.loads(text)
+print(data["name"])
+```
+
+```
+Ana
+```
+
+`loads` means **load** **s**tring: JSON text -> Python value. The `s` is the
+only difference between the two names, and mixing them up is the usual mistake.
+
+## The mappings
+
+| JSON | Python |
+| --- | --- |
+| object `{}` | `dict` |
+| array `[]` | `list` |
+| string | `str` |
+| number | `int` / `float` |
+| `true` / `false` | `True` / `False` |
+| `null` | `None` |
+
+Note the last two: Python writes `True` and `None`, JSON uses `true` and `null`.
+`json.dumps` translates for you. Typing JSON by hand in Python syntax is the
+common error.
+
+## Pretty printing
+
+```python
+print(json.dumps(data, indent=2))
+```
+
+Adds newlines and spaces so a human can read it. Never ship indented JSON to a
+size-critical place, but do use it when debugging.
+
+## Bad JSON raises an error
+
+```python
+json.loads("{bad}")
+```
+
+```
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes
+```
+
+JSON requires **double** quotes. Single quotes are not valid, even though
+Python accepts them.
+
+> `dumps` and `loads` work on strings. The file versions are `dump` and `load`
+> -- no `s`. Same idea, different source.
+""", {
+    "prompt": "Turn the dict into JSON text and print it. The output must be: {\"a\": 1, \"b\": 2}",
+    "starter": 'import json\n\ndata = {"a": 1, "b": 2}\n',
+    "expected": '{"a": 1, "b": 2}',
+}, 'import json\n\ndata = {"a": 1, "b": 2}\nprint(json.dumps(data))')
+
+lesson("jsonfiles", "Data Formats", "Saving Data with JSON Files", """
+# Saving Data with JSON Files
+
+`json.dump` writes straight to a file; `json.load` reads one back. No `s`.
+
+```python
+import json
+
+data = {"visits": 3, "name": "Ana"}
+
+with open("data.json", "w") as f:
+    json.dump(data, f)
+
+with open("data.json") as f:
+    loaded = json.load(f)
+
+print(loaded["name"])
+```
+
+```
+Ana
+```
+
+Notice the pattern: `open` plus `json.dump`, not `json.dumps` then `f.write`.
+Both work, but the direct form is shorter and avoids one mistake.
+
+## JSON has no tuples or sets
+
+```python
+import json
+
+print(json.dumps((1, 2)))   # [1, 2]
+```
+
+Tuples come back as lists. Sets are not JSON at all -- `json.dumps({1, 2})`
+raises `TypeError`. Convert first with `sorted(the_set)` or `list(the_set)` if
+order does not matter.
+
+## Numbers stay numbers
+
+```python
+import json
+
+data = json.loads('{"n": 5}')
+print(data["n"] + 1)      # 6
+```
+
+JSON numbers become real `int`/`float`, so arithmetic works immediately. This is
+why JSON is a better fit than plain text for structured data.
+
+## The round trip
+
+Save, load, and confirm you got the same thing:
+
+```python
+original = {"a": [1, 2], "b": None}
+again = json.loads(json.dumps(original))
+print(again == original)    # True
+```
+
+Being able to say that confidently is how you check a save/load bug.
+
+> If a file is empty, `json.load` raises `JSONDecodeError`. Check
+> `f.read()` first, or create the file with default contents when it is missing.
+""", {
+    "prompt": "Write data.json containing {\"hits\": 7}, read it back, and print the value under \"hits\".",
+    "starter": "import json\n\ndata = {'hits': 7}\n",
+    "expected": "7",
+}, 'import json\n\ndata = {"hits": 7}\n\nwith open("data.json", "w") as f:\n    json.dump(data, f)\n\nwith open("data.json") as f:\n    loaded = json.load(f)\n\nprint(loaded["hits"])')
+
+lesson("csvfiles", "Data Formats", "CSV Files", """
+# CSV Files
+
+CSV is a spreadsheet as plain text: values separated by commas, one row per
+line.
+
+```
+name,score
+Ana,90
+Bo,75
+```
+
+The first row is usually the header.
+
+## Reading
+
+```python
+import csv
+
+with open("scores.csv", newline="") as f:
+    rows = list(csv.reader(f))
+
+for row in rows:
+    print(row)
+```
+
+```
+['name', 'score']
+['Ana', '90']
+['Bo', '75']
+```
+
+Two things to notice:
+
+- `csv.reader` gives **lists of strings**. `"90"`, not `90`.
+- Use `newline=""` when opening. Without it, Windows line endings can produce
+  blank rows. It is harmless on Linux and correct everywhere.
+
+## Skipping the header
+
+```python
+with open("scores.csv", newline="") as f:
+    reader = csv.reader(f)
+    next(reader)            # throw away the header row
+    for row in reader:
+        print(row[0], row[1])
+```
+
+`next(reader)` pulls one row and discards it. That is the whole trick.
+
+## DictReader is friendlier
+
+```python
+with open("scores.csv", newline="") as f:
+    for row in csv.DictReader(f):
+        print(row["name"], row["score"])
+```
+
+`DictReader` uses the header as keys, so you write `row["name"]` instead of
+`row[0]`. It keeps working when somebody inserts a column in the middle.
+
+## Writing
+
+```python
+import csv
+
+with open("out.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["name", "score"])
+    writer.writerow(["Ana", 90])
+```
+
+`writerow` takes one list per row. Pass numbers, not strings -- it converts them.
+
+> Values containing commas are quoted automatically by `csv`. Do not split on
+> `","` yourself; that breaks the moment a field contains a comma.
+""", {
+    "prompt": "scores.csv already exists. Skip the header and print each name, one per line (Ana then Bo).",
+    "starter": 'import csv\n\nwith open("scores.csv", newline="") as f:\n    rows = list(csv.reader(f))\n',
+    "expected": "Ana\nBo",
+    "files": {"scores.csv": "name,score\nAna,90\nBo,75\n"},
+}, 'import csv\n\nwith open("scores.csv", newline="") as f:\n    reader = csv.reader(f)\n    next(reader)\n    for row in reader:\n        print(row[0])')
+
+# ---------------------------------------------------------------- ch17: recursion and algorithms
+lesson("recursion", "Recursion and Algorithms", "Recursion", """
+# Recursion
+
+A recursive function calls **itself** on a smaller version of the problem. Every
+recursive function needs two parts:
+
+1. a **base case** -- when to stop
+2. a **recursive case** -- call itself with something smaller
+
+```python
+def countdown(n):
+    if n == 0:          # base case
+        print("go")
+        return
+    print(n)
+    countdown(n - 1)    # recursive case, smaller
+
+countdown(3)
+```
+
+```
+3
+2
+1
+go
+```
+
+## Why it works
+
+Each call gets a smaller `n`, so it must eventually reach `0`. Remove the base
+case and it calls forever:
+
+```
+RecursionError: maximum recursion depth exceeded
+```
+
+That error means "you forgot the base case", or the value never actually gets
+smaller.
+
+## A classic: factorial
+
+```python
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(factorial(5))
+```
+
+```
+120
+```
+
+Read it as: `5 * 4 * 3 * 2 * 1`. The function trusts that `factorial(n - 1)`
+already works, and builds on that.
+
+## Any loop can do this
+
+```python
+def factorial_loop(n):
+    result = 1
+    for i in range(2, n + 1):
+        result = result * i
+    return result
+```
+
+Faster, and uses no extra memory. In Python, recursion is mostly a teaching
+tool -- the loop is usually the better choice. Recursion wins when the data
+itself is nested: a folder containing folders, or a tree.
+
+> If you can picture the problem shrinking toward a stopping point, recursion
+> will fit. If you cannot, use a loop.
+""", {
+    "prompt": "Write a recursive count_down(n) that prints n down to 1 on separate lines. Call count_down(3).",
+    "starter": "def count_down(n):\n    # your code here\n    pass\n\ncount_down(3)\n",
+    "expected": "3\n2\n1",
+}, 'def count_down(n):\n    if n == 0:\n        return\n    print(n)\n    count_down(n - 1)\n\ncount_down(3)')
+
+lesson("searching", "Recursion and Algorithms", "Searching", """
+# Searching
+
+Finding something in a collection is the most common real task. Two approaches,
+and the choice matters once the data is big.
+
+## Linear search: look at everything
+
+```python
+def find(names, target):
+    for name in names:
+        if name == target:
+            return name
+    return None
+
+print(find(["Ana", "Bo", "Cy"], "Bo"))
+```
+
+```
+Bo
+```
+
+One comparison per item. For 1,000 items, up to 1,000 checks. Simple, and
+correct on unsorted data.
+
+## Returning None when absent
+
+That `return None` at the end is important. Without it the function returns
+`None` anyway, but writing it makes the intent obvious to the next reader.
+
+## Python already has this
+
+```python
+if "Bo" in names:
+    print("found")
+
+names.index("Bo")   # position, raises ValueError if missing
+```
+
+Use `in` for "does it exist?" and `.index()` when you need the position. Reach
+for a hand-written loop only when the *match is complicated* -- for example,
+"the first person over 30".
+
+## Binary search: only on sorted data
+
+If a list is sorted, halve it each time:
+
+```python
+def binary_search(nums, target):
+    low, high = 0, len(nums) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if nums[mid] == target:
+            return mid
+        if nums[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+```
+
+For 1,000 sorted items that is about 10 comparisons instead of 1,000. The price
+is that the data must be sorted first, and sorting costs more than one search.
+
+> Rule of thumb: one lookup -- loop. Thousands of lookups on fixed data -- sort
+> once, then use binary search or a dict keyed by the thing you search for.
+""", {
+    "prompt": "Finish find(): return the first name longer than 3 letters, or None. Print it, so the output is Anabel.",
+    "starter": 'def find(names):\n    for name in names:\n        pass\n    return None\n\nprint(find(["Bo", "Anabel", "Cy"]))\n',
+    "expected": "Anabel",
+}, 'def find(names):\n    for name in names:\n        if len(name) > 3:\n            return name\n    return None\n\nprint(find(["Bo", "Anabel", "Cy"]))')
+
+lesson("algorithms", "Recursion and Algorithms", "Common Algorithms", """
+# Common Algorithms
+
+A handful of small patterns solve most beginner problems. Learn to recognise
+them.
+
+## Counting
+
+```python
+text = "hello world"
+count = 0
+for ch in text:
+    if ch == "l":
+        count = count + 1
+print(count)
+```
+
+Or, shorter, `text.count("l")`.
+
+## Total and average
+
+```python
+nums = [4, 8, 2]
+
+total = sum(nums)
+average = total / len(nums)
+print(total, average)
+```
+
+Guard the empty case: `sum([]) / len([])` raises `ZeroDivisionError` because
+`len([])` is `0`.
+
+## Finding the biggest
+
+```python
+biggest = nums[0]
+for n in nums[1:]:
+    if n > biggest:
+        biggest = n
+```
+
+This is `max(nums)`. Writing it once by hand teaches the pattern; after that,
+use `max`.
+
+## De-duplicating while keeping order
+
+A set removes duplicates but loses order:
+
+```python
+names = ["Ana", "Bo", "Ana", "Cy"]
+print(list(set(names)))       # order not guaranteed
+```
+
+To keep first-seen order:
+
+```python
+seen = set()
+unique = []
+for name in names:
+    if name not in seen:
+        seen.add(name)
+        unique.append(name)
+print(unique)
+```
+
+```
+['Ana', 'Bo', 'Cy']
+```
+
+That `seen` set plus `unique` list pattern appears in real code constantly --
+`if name not in seen` is O(1) on a set, so it stays fast on big data.
+
+## FizzBuzz
+
+The classic, because it combines the pieces: loop, modulus, conditions.
+
+```python
+for n in range(1, 6):
+    if n % 15 == 0:
+        print("FizzBuzz")
+    elif n % 3 == 0:
+        print("Fizz")
+    elif n % 5 == 0:
+        print("Buzz")
+    else:
+        print(n)
+```
+
+Check the **most specific** condition first. Testing `% 3` before `% 15` would
+print `Fizz` for 15.
+
+> When a problem looks new, ask which of these it is: count, total, find,
+> filter, dedupe, or combine. It nearly always is one of them.
+""", {
+    "prompt": "Print Fizz for multiples of 3 and Buzz for multiples of 5, from 1 to 5, one per line. So: 1, 2, Fizz, 4, Buzz.",
+    "starter": "for n in range(1, 6):\n    pass\n",
+    "expected": "1\n2\nFizz\n4\nBuzz",
+}, 'for n in range(1, 6):\n    if n % 3 == 0:\n        print("Fizz")\n    elif n % 5 == 0:\n        print("Buzz")\n    else:\n        print(n)')
+
+# ---------------------------------------------------------------- ch18: testing and debugging
+lesson("asserts", "Testing and Debugging", "Checking with assert", """
+# Checking with assert
+
+`assert` states something you believe is true. If it is not, Python stops
+immediately and tells you.
+
+```python
+def double(n):
+    return n * 2
+
+assert double(2) == 4
+assert double(0) == 0
+
+print("all good")
+```
+
+```
+all good
+```
+
+No output from the asserts means they all passed.
+
+## When one fails
+
+```python
+assert double(3) == 7
+```
+
+```
+AssertionError
+```
+
+The program stops at that line. Any lines after it never run -- which is the
+point: a broken assumption should not be allowed to quietly poison everything
+downstream.
+
+## Add a message
+
+```python
+assert double(3) == 6, "double(3) should be 6"
+```
+
+Now the failure says what you meant, not just that something is wrong. Always
+include the message when the expression is not obvious.
+
+## Assertions check *code*, not user input
+
+`assert` is for finding bugs while you develop. It is **not** for validating
+data a user typed:
+
+```python
+def withdraw(amount):
+    assert amount > 0, "amount must be positive"    # wrong tool
+```
+
+Anyone can run Python with assertions switched off (`python3 -O`), so this check
+would silently vanish in production. For real validation, raise:
+
+```python
+def withdraw(amount):
+    if amount <= 0:
+        raise ValueError("amount must be positive")
+```
+
+Use `assert` on things that would mean *your code is wrong*. Use `raise` on
+things that mean *the caller is wrong*.
+
+## A tiny test suite
+
+```python
+assert double(2) == 4
+assert double(-1) == -2
+assert double(0) == 0
+print("tests passed")
+```
+
+That is a real, useful test suite. Professionals use `pytest` for the reporting,
+but the idea is identical: state what should be true and let the machine check
+it.
+
+> Write the assertion first, watch it fail, then write the code that makes it
+> pass. You will never wonder whether your test does anything.
+""", {
+    "prompt": "Assert that add(2, 3) equals 5 and that add(-1, 1) equals 0, then print all good.",
+    "starter": "def add(a, b):\n    return a + b\n\n\n",
+    "expected": "all good",
+}, 'def add(a, b):\n    return a + b\n\nassert add(2, 3) == 5\nassert add(-1, 1) == 0\nprint("all good")')
+
+lesson("tracebacks", "Testing and Debugging", "Reading Tracebacks", """
+# Reading Tracebacks
+
+A traceback looks scary and is actually a map. Read it **from the bottom up**.
+
+```
+Traceback (most recent call last):
+  File "main.py", line 4, in <module>
+    print(total / count)
+          ~~~~~~^~~~~~~
+ZeroDivisionError: division by zero
+```
+
+Four pieces, in order of usefulness:
+
+1. **Last line** -- the error type and message: `ZeroDivisionError: division by
+   zero`. That is the *what*.
+2. **The line above it** -- your source line, with `^` pointing at the exact
+   expression that broke.
+3. **The `File` lines** -- *where*. The last one is your code; earlier ones are
+   library internals you usually do not care about.
+4. **`Traceback (most recent call last)`** -- so the final frame is the failure
+   site.
+
+## The common errors and what they mean
+
+| Error | Usually means |
+| --- | --- |
+| `NameError` | typo, or variable not defined yet |
+| `TypeError` | wrong kind of value, e.g. `"a" + 1` |
+| `ValueError` | right kind, wrong content, e.g. `int("abc")` |
+| `IndexError` | list index past the end |
+| `KeyError` | dict key not present |
+| `AttributeError` | `.method()` does not exist on that type |
+| `ZeroDivisionError` | dividing by zero |
+
+## The frame that matters
+
+Long tracebacks have many frames. Only **one** of them is your file. Find the
+`main.py` line and start there.
+
+## A stack of calls
+
+```python
+def a():
+    return b()
+
+def b():
+    return 1 / 0
+
+a()
+```
+
+The traceback lists `a` calling `b` calling the bad line. The bottom frame is
+where it broke; the frames above are how it got there. Both matter when a helper
+is called from the wrong place.
+
+## What to do with it
+
+1. Read the last line. Identify the error type.
+2. Find your line and look at the values on it.
+3. `print()` the suspicious variable just before the failing line.
+
+That third step solves most bugs. The traceback tells you *where*; printing
+tells you *what the value actually was*, which is usually not what you assumed.
+
+> Never paste a traceback away and rewrite the function from scratch. The answer
+> is already in the message -- read the bottom line first.
+""", {
+    "prompt": "This code raises an IndexError. Fix it so it prints the last item, banana.",
+    "starter": 'fruits = ["apple", "banana"]\nprint(fruits[2])\n',
+    "expected": "banana",
+}, 'fruits = ["apple", "banana"]\nprint(fruits[-1])')
+
+lesson("debugging", "Testing and Debugging", "Debugging a Bug", """
+# Debugging a Bug
+
+Bugs are not mysterious. There is a gap between what you think the code does and
+what it does. Debugging is closing that gap.
+
+## Step 1: reproduce it
+
+Find the smallest input that shows the bug. "It breaks on my data" is not a bug
+report; "it breaks when the list is empty" is.
+
+```python
+def average(nums):
+    return sum(nums) / len(nums)
+
+print(average([]))
+```
+
+```
+ZeroDivisionError: division by zero
+```
+
+Now you have a case you can run in two seconds, over and over.
+
+## Step 2: find the wrong assumption
+
+You assumed the list always has something in it. Print the things you assume:
+
+```python
+def average(nums):
+    print("nums is", nums)
+    return sum(nums) / len(nums)
+```
+
+The printout confirms it: `nums is []`. The bug is an assumption, not Python.
+
+## Step 3: fix the cause, not the symptom
+
+Wrapping the call in `try/except` hides the crash and returns nothing useful:
+
+```python
+try:
+    avg = average(nums)
+except ZeroDivisionError:
+    avg = 0        # silently wrong: 0 is not "no data"
+```
+
+The real fix is to decide what an empty list *means*:
+
+```python
+def average(nums):
+    if not nums:
+        return None
+    return sum(nums) / len(nums)
+```
+
+`None` says "there is no average", which is true. `0` would be a lie.
+
+## Step 4: prove it is fixed
+
+```python
+assert average([]) is None
+assert average([2, 4]) == 3
+```
+
+The assertion for the old bug is what stops it coming back.
+
+## The three habits
+
+- **Print the value you assume.** Most bugs are a variable holding something
+  unexpected.
+- **Shrink the input** until the bug is obvious.
+- **Ask what should happen**, not just what does. Half of all "bugs" are an
+  unclear requirement.
+
+> Rubber-duck it: explain the code out loud, line by line. You will often hear
+> the mistake before you finish the sentence.
+""", {
+    "prompt": "first_item() crashes on an empty list. Make it return the string empty instead, so the output is empty.",
+    "starter": 'def first_item(items):\n    return items[0]\n\nprint(first_item([]))\n',
+    "expected": "empty",
+}, 'def first_item(items):\n    if not items:\n        return "empty"\n    return items[0]\n\nprint(first_item([]))')
+
+# ---------------------------------------------------------------- ch19: scripts and tools
+lesson("dunder", "Scripts and Tools", "if __name__ == \"__main__\"", """
+# if __name__ == "__main__"
+
+You have seen this line. Here is what it is for.
+
+```python
+# greet.py
+def hello(name):
+    return f"Hello, {name}!"
+
+if __name__ == "__main__":
+    print(hello("Ana"))
+```
+
+Run it directly:
+
+```
+$ python3 greet.py
+Hello, Ana!
+```
+
+Import it from another file:
+
+```python
+import greet
+print(greet.hello("Bo"))
+```
+
+```
+Hello, Bo!
+```
+
+The `print(hello("Ana"))` did **not** run on import. Only the function was made
+available.
+
+## Why
+
+Every module has a `__name__` variable.
+
+- Run the file directly: `__name__` is `"__main__"`.
+- Import it: `__name__` is the module's name, `"greet"`.
+
+So `if __name__ == "__main__":` reads as "am I the program being run, or am I
+being imported?"
+
+## Without the guard
+
+```python
+# greet.py
+def hello(name):
+    return f"Hello, {name}!"
+
+print(hello("Ana"))      # runs on every import
+```
+
+Now `import greet` prints `Hello, Ana!` as a side effect. In a big project,
+importing one module starts doing work -- or worse, deletes a file or connects
+to a server -- because some line at the top level ran.
+
+## The shape of a good file
+
+```python
+def helper_one():
+    ...
+
+def helper_two():
+    ...
+
+def main():
+    ...                      # the actual program
+
+if __name__ == "__main__":
+    main()
+```
+
+Imports at the top, definitions in the middle, entry point at the bottom. This
+is the layout used by nearly every Python project you will open.
+
+> Even scripts you will never import are easier to test when their logic is in
+> functions and only `main()` runs at the bottom.
+
+## Seeing the difference for real
+
+A guard cannot be tested by running the file once -- it behaves the same either
+way. The proof is to **import** a file and check what did *not* happen.
+
+The exercise below has `tool.py` next to your program:
+
+```python
+# tool.py
+def shout(text):
+    return text.upper()
+
+if __name__ == "__main__":
+    print("tool.py ran directly")
+```
+
+If `tool.py` had that `print` at the top level instead, importing it would print.
+With the guard, `import tool` prints nothing and you only get the function.
+""", {
+    "prompt": "tool.py already exists with a __main__ guard. Import it, confirm nothing printed on import, then print tool.shout(\"hi\"). Output: HI",
+    "starter": "",
+    "expected": "HI",
+    "files": {
+        "tool.py": 'def shout(text):\n    return text.upper()\n\n\nif __name__ == "__main__":\n    print("tool.py ran directly")\n'
+    },
+}, 'import tool\n\nprint(tool.shout("hi"))')
+
+lesson("sysargv", "Scripts and Tools", "Command-line Arguments", """
+# Command-line Arguments
+
+Every real script takes input from the command line:
+
+```
+$ python3 greet.py Ana
+Hello, Ana!
+```
+
+`sys.argv` is the list of those words.
+
+```python
+import sys
+
+print(sys.argv)
+```
+
+Running `python3 greet.py Ana` gives:
+
+```
+['greet.py', 'Ana']
+```
+
+The **first item is always the script name**, so real arguments start at index
+`1`. That off-by-one is deliberate: you can check `sys.argv[1:]` to get just the
+arguments.
+
+## A working script
+
+```python
+import sys
+
+if len(sys.argv) < 2:
+    print("usage: python3 greet.py NAME")
+    sys.exit(1)
+
+print(f"Hello, {sys.argv[1]}!")
+```
+
+Three things worth copying:
+
+- Check `len(sys.argv)` **before** indexing, or you get an `IndexError`.
+- Print a usage line so the user knows what to type.
+- `sys.exit(1)` returns a non-zero code, which tells the shell it failed.
+
+## Everything is a string
+
+```python
+$ python3 add.py 2 3
+
+import sys
+a = int(sys.argv[1])     # must convert
+b = int(sys.argv[2])
+print(a + b)
+```
+
+`sys.argv[2]` is `"3"`, not `3`. Forgetting `int()` gives `"23"` instead of `5`.
+
+## Exit codes matter
+
+```python
+import sys
+
+sys.exit(0)    # success
+sys.exit(1)    # failure
+```
+
+Other programs read this number. A script that crashes but exits `0` looks
+successful to whatever ran it, which is how broken builds slip through.
+
+> In the exercise you cannot type real command-line arguments, so we set
+> `sys.argv` by hand first -- which is exactly what a test does when it checks a
+> script.
+""", {
+    "prompt": "Set sys.argv to [\"greet.py\", \"Ana\"], then print the second element. Output: Ana",
+    "starter": "import sys\n\nsys.argv = ['greet.py', 'Ana']\n",
+    "expected": "Ana",
+}, "import sys\n\nsys.argv = ['greet.py', 'Ana']\nprint(sys.argv[1])")
+
+lesson("venv", "Scripts and Tools", "Virtual Environments and pip", """
+# Virtual Environments and pip
+
+`pip` installs packages that are not in the standard library. A **virtual
+environment** keeps those packages separate per project.
+
+## Why you need one
+
+Without one, every `pip install` goes into one shared pile. Project A needs
+`requests` version 2, project B needs version 3, and they fight.
+
+A virtual environment is a folder holding its own Python packages. Activate it
+and `pip install` lands there instead.
+
+## The four commands
+
+```bash
+# create it once, in the project folder
+python3 -m venv .venv
+
+# activate it (Linux / macOS)
+source .venv/bin/activate
+
+# install what you need
+pip install requests
+
+# later, leave it
+deactivate
+```
+
+On Windows the activate line is `.venv\\Scripts\\activate`.
+
+After activating, your prompt shows `(.venv)` so you can tell it is on. `which
+python3` should point inside the folder -- if it does not, the activate step
+failed.
+
+## Recording what you installed
+
+```bash
+pip freeze > requirements.txt
+```
+
+That file lists exact versions. Someone else, or future you, recreates the setup
+with:
+
+```bash
+pip install -r requirements.txt
+```
+
+`requirements.txt` belongs in git. `.venv` does **not** -- add it to
+`.gitignore`. It is large, machine-specific, and rebuilt from the requirements
+file.
+
+## How a program can tell
+
+A venv works by changing `sys.prefix` -- the path Python considers its own
+install. Compare the two:
+
+```python
+import sys
+
+if sys.prefix != sys.base_prefix:
+    print("running inside a virtual environment")
+else:
+    print("running on the system Python")
+```
+
+`base_prefix` is always the *original* interpreter; `prefix` is the current
+one. Inside a venv they differ. Tools like `pip` and `pytest` use this to warn
+you when you forgot to activate.
+
+## Do not install what you do not need
+
+The standard library is big. Before `pip install`-ing something, check whether
+`json`, `csv`, `datetime`, `pathlib` or `urllib` already do it. Every dependency
+is code you did not write that you now must keep up to date.
+
+> Only install packages you trust, and pin versions in `requirements.txt`. A
+> dependency is also a supply chain.
+""", {
+    "prompt": "Write check(prefix, base) that returns \"venv\" when they differ and \"system\" when they match. Print check(\"/p/.venv\", \"/p\") then check(\"/usr\", \"/usr\").",
+    "starter": 'def check(prefix, base):\n    pass\n\nprint(check("/p/.venv", "/p"))\nprint(check("/usr", "/usr"))\n',
+    "expected": "venv\nsystem",
+}, 'def check(prefix, base):\n    if prefix != base:\n        return "venv"\n    return "system"\n\nprint(check("/p/.venv", "/p"))\nprint(check("/usr", "/usr"))')
+
+
 # Progressive hints, keyed by lesson id. Each entry is a list; the Hint button
 # reveals them one at a time, so the first nudge stays a nudge.
 HINTS = {
@@ -2189,6 +3958,98 @@ HINTS = {
         "Loop over the lines of the file one at a time.",
         "Every line is text, so convert with int() before adding it to total.",
     ],
+    "none": [
+        "print() inside the function is not the same as returning a value.",
+        "Replace print(min(numbers)) with return min(numbers).",
+    ],
+    "scope": [
+        "Inside bump(), assigning to count makes Python treat it as local.",
+        "Take a parameter, return n + 1, then assign count = bump(count).",
+    ],
+    "classes": [
+        "__init__ receives self plus the arguments you passed to Book(...).",
+        "Store them as self.title = title and self.pages = pages.",
+    ],
+    "methods": [
+        "A method takes self first, then the arguments you call it with.",
+        "Add amount to self.balance inside deposit().",
+    ],
+    "inheritance": [
+        "Put the parent in the brackets: class Cat(Animal).",
+        "Then define speak(self) in Cat that returns \"Meow\".",
+    ],
+    "imports": [
+        "Bring in the module first with import math.",
+        "math.sqrt(81) gives 9.0, and print() it.",
+    ],
+    "stdlib": [
+        "random.seed(42) must come before you pick anything.",
+        "Import choice under another name: from random import choice as pick.",
+    ],
+    "ownmodule": [
+        "greeting.py is already in the folder -- look at the panel above the code box.",
+        "import greeting, then print(greeting.hello(\"Ana\")).",
+    ],
+    "sorting": [
+        ".sort() changes the list itself and returns None.",
+        "Call nums.sort() on its own line, then print(nums).",
+    ],
+    "keyfunctions": [
+        "sorted() accepts a key argument that decides what to compare.",
+        "Use key=str.lower so capitals and lowercase sort together.",
+    ],
+    "lambdas": [
+        "max() gives the largest and sum() gives the total.",
+        "Print max(scores) first, then sum(scores) on the next line.",
+    ],
+    "json": [
+        "json.dumps() turns a Python value into JSON text.",
+        "Print the result of json.dumps(data) -- do not add quotes around it.",
+    ],
+    "jsonfiles": [
+        "json.dump() writes to a file object; json.load() reads one.",
+        "Open data.json with \"w\", dump, then reopen and print loaded[\"hits\"].",
+    ],
+    "csvfiles": [
+        "csv.reader gives one list per row, including the header row.",
+        "Call next(reader) to skip the header, then print row[0] for each row.",
+    ],
+    "recursion": [
+        "Every recursive function needs a base case that stops it.",
+        "If n is 0, return. Otherwise print n, then call count_down(n - 1).",
+    ],
+    "searching": [
+        "Return as soon as you find a match -- do not keep looping.",
+        "The condition is len(name) > 3.",
+    ],
+    "algorithms": [
+        "Use n % 3 == 0 to test whether n is a multiple of 3.",
+        "Check the divisible-by-3 case before the divisible-by-5 case.",
+    ],
+    "asserts": [
+        "assert expression checks that the expression is true.",
+        "Write assert add(2, 3) == 5 and assert add(-1, 1) == 0 before the print.",
+    ],
+    "tracebacks": [
+        "The IndexError says the index is past the end of a 2-item list.",
+        "fruits[-1] gives the last item without needing to know the length.",
+    ],
+    "debugging": [
+        "items[0] fails when items is empty -- check for that first.",
+        "if not items: return \"empty\", then return items[0].",
+    ],
+    "dunder": [
+        "tool.py already exists -- look at the panel above the code box.",
+        "import tool prints nothing thanks to its guard; then print(tool.shout(\"hi\")).",
+    ],
+    "sysargv": [
+        "sys.argv[0] is the script name, so the first real argument is [1].",
+        "Print sys.argv[1] to get Ana.",
+    ],
+    "venv": [
+        "The two paths are equal only when you are NOT in a virtual environment.",
+        "Return \"venv\" when prefix != base, and \"system\" otherwise.",
+    ],
 }
 
 
@@ -2207,8 +4068,16 @@ CHAPTER_ORDER = [
     "Tuples and Sets",
     "Dictionaries",
     "Functions",
+    "None and Scope",
     "Handling Errors",
     "Working with Files",
+    "Classes",
+    "Modules and the Standard Library",
+    "Sorting and Lambdas",
+    "Data Formats",
+    "Recursion and Algorithms",
+    "Testing and Debugging",
+    "Scripts and Tools",
 ]
 
 
@@ -2230,32 +4099,28 @@ def build():
 
 
 def verify_solutions() -> None:
-    """Run every reference solution in a throwaway dir, with its files seeded."""
-    import shutil
-    import subprocess
+    """Run every reference solution exactly the way the browser will run it.
+
+    This calls server.run_python() rather than re-implementing the subprocess
+    call, so the build check and the real judge can never drift apart. If a
+    solution only works under different interpreter flags, the build fails
+    here instead of failing for the student.
+    """
     import sys
-    import tempfile
+    from pathlib import Path as _Path
+
+    sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
+    from server import normalize, run_python  # noqa: E402
 
     failures = []
     for id, _chapter, _title, _body, exercise, solution in L:
         if not exercise:
             continue
-        workdir = tempfile.mkdtemp(prefix="verify-")
-        try:
-            for name, content in (exercise.get("files") or {}).items():
-                target = Path(workdir, name)
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_text(content, encoding="utf-8")
-
-            proc = subprocess.run([sys.executable, "-I", "-c", solution],
-                                  capture_output=True, text=True,
-                                  timeout=10, cwd=workdir)
-            got = proc.stdout.rstrip("\n")
-            want = exercise["expected"]
-            if proc.returncode != 0 or got != want:
-                failures.append((id, want, got, proc.stderr.strip()))
-        finally:
-            shutil.rmtree(workdir, ignore_errors=True)
+        result = run_python(solution, exercise.get("files") or {})
+        got = normalize(result["stdout"])
+        want = normalize(exercise["expected"])
+        if not result["ok"] or got != want:
+            failures.append((id, want, got, (result.get("error") or result["stderr"]).strip()))
 
     if failures:
         for id, want, got, err in failures:
@@ -2264,16 +4129,51 @@ def verify_solutions() -> None:
 
 
 if __name__ == "__main__":
+    # The repo root must be importable before we can reach server.py.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from server import MAIN_FILE
+
+    # A lesson that seeds main.py would have its file overwritten by the
+    # snippet, giving a confusing "file not found" in the browser.
+    clashes = [
+        i for i, _c, _t, _b, ex, _s in L
+        if ex and MAIN_FILE in (ex.get("files") or {})
+    ]
+    if clashes:
+        raise SystemExit(f"lessons seed {MAIN_FILE!r}, which the runner owns: {', '.join(clashes)}")
+
     verify_solutions()
+
+    # A starter that already passes teaches nothing: the student hits Submit and
+    # is told they are done. Empty starters are fine -- the student writes it all.
+    from server import normalize, run_python  # noqa: E402  (path set above)
+
+    trivial = []
+    for id, _c, _t, _b, ex, _s in L:
+        if not ex:
+            continue
+        starter = (ex.get("starter") or "").strip()
+        if not starter:
+            continue
+        result = run_python(ex["starter"], ex.get("files") or {})
+        if result["ok"] and normalize(result["stdout"]) == normalize(ex["expected"]):
+            trivial.append(id)
+    if trivial:
+        sys.exit(f"starter already passes the exercise (student learns nothing): {', '.join(trivial)}")
 
     missing_hints = [i for i, *_r in L if i not in HINTS]
     if missing_hints:
         sys.exit(f"missing hints for: {', '.join(missing_hints)}")
+
+    thin_hints = [i for i, *_r in L if len(HINTS[i]) < 2]
+    if thin_hints:
+        sys.exit(f"need 2 hints each: {', '.join(thin_hints)}")
 
     path = Path(__file__).parent / "lessons.json"
     path.write_text(json.dumps(build(), indent=2, ensure_ascii=False) + "\n", "utf-8")
     n_ex = sum(1 for x in L if x[4])
     n_files = sum(1 for x in L if x[4] and x[4].get("files"))
     n_hints = sum(len(HINTS[i]) for i, *_r in L)
-    print(f"OK: {len(L)} lessons, {n_ex} exercises verified ({n_files} with files), "
-          f"{n_hints} hints -> {path}")
+    n_chapters = len({x[1] for x in L})
+    print(f"OK: {len(L)} lessons in {n_chapters} chapters, {n_ex} exercises verified "
+          f"({n_files} with files), {n_hints} hints -> {path}")

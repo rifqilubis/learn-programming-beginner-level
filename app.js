@@ -372,7 +372,12 @@ async function submitCode() {
       renderSidebar();
       renderProgress();
     } else if (!result.ok) {
-      showOutput('<span class="out-bad">✗ Your code errored.</span>\n\n' + renderRunResult(result), 'fail');
+      // A crash is a different lesson from a wrong answer: say what broke.
+      const why = result.reason
+        ? `<span class="out-note">${escapeHtml(result.reason)}</span>\n\n`
+        : '';
+      showOutput('<span class="out-bad">✗ Your code stopped with an error.</span>\n\n'
+        + why + renderRunResult(result), 'fail');
     } else {
       showOutput(
         '<span class="out-bad">✗ Not quite.</span> <span class="out-note">Your output does not match the expected output.</span>\n\n' +

@@ -18,7 +18,7 @@ Stop it with `ctrl+c`.
 
 ## What's inside
 
-**39 lessons across 12 chapters:**
+**62 lessons across 20 chapters:**
 
 | # | Chapter | Lessons |
 |---|---|---|
@@ -32,14 +32,32 @@ Stop it with `ctrl+c`.
 | 8 | Tuples and Sets | Tuples, Sets, Which One Do I Use? |
 | 9 | Dictionaries | Dictionaries, Counting with a Dict, Looping Over a Dict |
 | 10 | Functions | Functions, Parameters and `return`, Putting It Together |
-| 11 | Handling Errors | `try`/`except`, Common Errors, Raising Your Own |
-| 12 | Working with Files | Reading Files, Writing Files, Putting It Together |
+| 11 | None and Scope | `None`, Local and Global Scope |
+| 12 | Handling Errors | `try`/`except`, Common Errors, Raising Your Own |
+| 13 | Working with Files | Reading Files, Writing Files, Putting It Together |
+| 14 | Classes | Classes and Objects, Methods, Inheritance |
+| 15 | Modules and the Standard Library | Importing Modules, The Standard Library, Writing Your Own Module |
+| 16 | Sorting and Lambdas | `sort` and `sorted`, Sorting with `key`, The Built-in Helpers |
+| 17 | Data Formats | JSON, Saving Data with JSON Files, CSV Files |
+| 18 | Recursion and Algorithms | Recursion, Searching, Common Algorithms |
+| 19 | Testing and Debugging | Checking with `assert`, Reading Tracebacks, Debugging a Bug |
+| 20 | Scripts and Tools | `if __name__ == "__main__"`, Command-line Arguments, Virtual Environments and `pip` |
 
 Every lesson ends with a graded exercise.
 
 The order is deliberate: strings are introduced before conditions, and
-collection types come after you have looped over something. If you reorder
-chapters, edit `CHAPTER_ORDER` in `content/build_lessons.py`.
+collection types come after you have looped over something. Classes and modules
+come after functions, because both build on them. If you reorder chapters, edit
+`CHAPTER_ORDER` in `content/build_lessons.py`.
+
+Chapters 1–13 are the core language. Chapters 14–20 are what turns "I know
+Python syntax" into "I can write a small program": your own classes and modules,
+sorting, real data formats, the standard library, tests, and how to run a script
+from the command line.
+
+Not covered, because they are past beginner level: decorators, generators,
+async/await, threading, metaprogramming, and packaging for PyPI. Each is worth
+learning later, and none is needed to be productive in Python.
 
 ## Features
 
@@ -168,3 +186,27 @@ files* land; it does not confine malicious code.
 **Do not deploy this to a public server as-is.** If you want to host it, run
 student code inside a disposable container with no network access and a mounted
 read-only filesystem.
+
+## How student code is executed
+
+The snippet is written to `main.py` in the temp directory and run as:
+
+```bash
+python3 -E -s main.py
+```
+
+- `-E` ignores `PYTHONPATH` and other `PYTHON*` environment variables, so the
+  environment cannot inject modules into a lesson.
+- `-s` does not add your personal site-packages.
+
+`-I` is deliberately **not** used. It also removes the script's own directory
+from `sys.path`, which breaks two things a beginner course needs: importing a
+file the student just wrote (the "Writing Your Own Module" lesson), and
+tracebacks that point at the real line in their own code. `-E -s` keeps the
+isolation that matters while letting those lessons be honest.
+
+Tracebacks have the throwaway directory stripped, so they read
+`File "main.py", line 3` instead of exposing a random `/tmp/lesson-xxxx` path.
+
+Because the snippet is written to `main.py`, a lesson must not seed a file with
+that name — the build fails if one does.
