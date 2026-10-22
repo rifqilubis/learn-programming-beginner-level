@@ -18,7 +18,7 @@ Stop it with `ctrl+c`.
 
 ## What's inside
 
-**21 lessons across 6 chapters:**
+**30 lessons across 9 chapters:**
 
 | Chapter | Lessons |
 |---|---|
@@ -28,6 +28,9 @@ Stop it with `ctrl+c`.
 | Loops | `for` and `range`, `while`, `break`/`continue` |
 | Lists | Lists, Changing Lists, Looping Over Lists |
 | Functions | Functions, Parameters and `return`, Putting It Together |
+| Dictionaries | Dictionaries, Counting with a Dict, Looping Over a Dict |
+| Handling Errors | `try`/`except`, Common Errors, Raising Your Own |
+| Working with Files | Reading Files, Writing Files, Putting It Together |
 
 Every lesson ends with a graded exercise.
 
@@ -37,6 +40,8 @@ Every lesson ends with a graded exercise.
 - **Markdown lessons** — headings, tables, code blocks, callouts
 - **Python syntax highlighting** — hand-written, no library
 - **Exercise box** that runs your code and compares output to the expected answer
+- **File exercises** — some lessons ship a real file (`notes.txt`, `sales.txt`)
+  that your code reads; it appears in a panel above the editor
 - **Progress saved** in `localStorage`, so it survives a refresh
 - **Keyboard shortcuts** — `ctrl+,` back, `ctrl+.` next, `ctrl+enter` submit
 - Works on mobile (sidebar collapses)
@@ -56,16 +61,29 @@ content/e2e_test.py         end-to-end test of the running server
 ## Adding or editing lessons
 
 Lessons are authored in `content/build_lessons.py` as plain markdown, then
-compiled to JSON. Each lesson has an optional exercise with an `expected` output.
+compiled to JSON. Each lesson has an optional exercise with an `expected` output
+and, for file lessons, a `files` map of pre-existing file contents:
+
+```python
+lesson("reading", "Working with Files", "Reading Files", """
+# Reading Files
+...markdown...
+""", {
+    "prompt": "Read notes.txt and print its contents.",
+    "starter": "",
+    "expected": "hello",
+    "files": {"notes.txt": "hello\n"},
+}, 'with open("notes.txt") as f:\n    print(f.read().strip())')
+```
 
 ```bash
 python3 content/build_lessons.py
 ```
 
-That command **verifies every reference solution** — it runs each one and
-confirms the output matches what the exercise expects. If you edit a lesson and
-break its solution, the build fails and tells you which one. Then refresh the
-browser.
+That command **verifies every reference solution** — it runs each one in a
+throwaway directory with its files seeded, and confirms the output matches what
+the exercise expects. If you edit a lesson and break its solution, the build
+fails and tells you which one.
 
 ## Testing
 
@@ -76,8 +94,8 @@ python3 content/e2e_test.py
 ```
 
 It submits every lesson's solution through the real HTTP API, confirms wrong
-answers are rejected, and checks that infinite loops are killed and output is
-capped.
+answers are rejected, and checks that infinite loops are killed, output is
+capped, file scenarios behave, and path traversal is refused.
 
 ## ⚠️ Security
 
@@ -86,11 +104,14 @@ capped.
 That is arbitrary code execution. It is safe here only because:
 
 - the server binds to `127.0.0.1` (localhost, not your network)
-- each snippet runs in a separate process with a 5-second timeout and an 8 KB
-  output cap
+- each snippet runs in its own process, with a **fresh temporary working
+  directory** as its cwd, a 5-second timeout, and an 8 KB output cap
+- file paths supplied with an exercise are validated — absolute paths and `..`
+  are refused
 
-Neither of those is a real sandbox — a snippet can still read and write files
-your user can reach, and can reach the network.
+None of that is a real sandbox. A snippet can still read any file your user can
+read, and can reach the network. The temp directory controls where *lesson
+files* land; it does not confine malicious code.
 
 **Do not deploy this to a public server as-is.** If you want to host it, run
 student code inside a disposable container with no network access and a mounted

@@ -11,10 +11,12 @@ network access.
 """
 
 import json
+import shutil
 import subprocess
 import sys
+import tempfile
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parent
 TIMEOUT_SECONDS = 5
@@ -23,21 +25,50 @@ HOST = "127.0.0.1"
 PORT = 8000
 
 
-def run_python(code: str) -> dict:
-    """Run a snippet in a fresh isolated interpreter and capture its output."""
+def safe_files(files) -> dict:
+    """Keep only plain relative paths, so a lesson cannot seed files outside its temp dir."""
+    if not isinstance(files, dict):
+        return {}
+    clean = {}
+    for name, content in files.items():
+        if not isinstance(name, str) or not isinstance(content, str):
+            continue
+        path = PurePosixPath(name)
+        if path.is_absolute() or ".." in path.parts or not name.strip():
+            continue
+        clean[name] = content
+    return clean
+
+
+def run_python(code: str, files=None) -> dict:
+    """Run a snippet in a fresh interpreter, inside a throwaway directory.
+
+    Each run gets its own temp cwd, so file lessons can write and read freely
+    without touching the repo. `files` seeds the directory beforehand.
+    """
+    workdir = tempfile.mkdtemp(prefix="lesson-")
     try:
-        proc = subprocess.run(
-            [sys.executable, "-I", "-c", code],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired:
-        return {
-            "ok": False,
-            "stdout": "",
-            "stderr": f"Timed out after {TIMEOUT_SECONDS}s. Infinite loop?",
-        }
+        for name, content in safe_files(files).items():
+            target = Path(workdir, name)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8")
+
+        try:
+            proc = subprocess.run(
+                [sys.executable, "-I", "-c", code],
+                capture_output=True,
+                text=True,
+                timeout=TIMEOUT_SECONDS,
+                cwd=workdir,
+            )
+        except subprocess.TimeoutExpired:
+            return {
+                "ok": False,
+                "stdout": "",
+                "stderr": f"Timed out after {TIMEOUT_SECONDS}s. Infinite loop?",
+            }
+    finally:
+        shutil.rmtree(workdir, ignore_errors=True)
 
     return {
         "ok": proc.returncode == 0,
@@ -90,11 +121,12 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == "/api/run":
-            code = self._read_body().get("code", "")
+            payload = self._read_body()
+            code = payload.get("code", "")
             if not isinstance(code, str):
                 self._send_json({"error": "code must be a string"}, status=400)
                 return
-            self._send_json(run_python(code))
+            self._send_json(run_python(code, payload.get("files")))
             return
 
         if self.path == "/api/check":
@@ -104,7 +136,7 @@ class Handler(SimpleHTTPRequestHandler):
             if not isinstance(code, str) or not isinstance(expected, str):
                 self._send_json({"error": "code and expected must be strings"}, status=400)
                 return
-            result = run_python(code)
+            result = run_python(code, payload.get("files"))
             result["passed"] = result["ok"] and normalize(result["stdout"]) == normalize(expected)
             self._send_json(result)
             return

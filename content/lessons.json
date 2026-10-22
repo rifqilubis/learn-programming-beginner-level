@@ -230,6 +230,112 @@
         "starter": "",
         "expected": "9"
       }
+    },
+    {
+      "id": "dicts",
+      "chapter": "Dictionaries",
+      "title": "Dictionaries",
+      "body": "# Dictionaries\n\nA list finds things by position -- `fruits[0]`. A dictionary finds things by\n**name**. You look up a *key* to get its *value*.\n\n```python\nages = {\"Ada\": 36, \"Grace\": 45}\nprint(ages[\"Ada\"])\n```\n\n```\n36\n```\n\nCurly braces, `key: value` pairs, separated by commas. This is how you store\ndata that has labels rather than a natural order.\n\n## Look, change, add\n\n```python\nages[\"Ada\"] = 37       # key exists, so this overwrites\nages[\"Alan\"] = 41      # key is new, so this adds\nprint(ages)\n```\n\n```\n{'Ada': 37, 'Grace': 45, 'Alan': 41}\n```\n\nThe syntax is identical whether the key exists or not, which is why it is easy\nto silently overwrite something you meant to keep.\n\n## What a missing key does\n\n```python\nprint(ages[\"Bob\"])\n```\n\n```\nKeyError: 'Bob'\n```\n\nThat crash is on purpose. Better to fail than to invent a value. When you are\nnot sure the key exists, use `.get()`:\n\n```python\nprint(ages.get(\"Bob\"))          # None\nprint(ages.get(\"Bob\", 0))       # 0\n```\n\n## What keys can be\n\nKeys are usually strings or numbers. Values can be anything -- including lists\nand other dictionaries.\n\n> If your data has names or categories, reach for a dict. If it is a sequence\n> of similar things, reach for a list.",
+      "exercise": {
+        "prompt": "Create a dict named capitals with France mapped to Paris, then print capitals[\\\"France\\\"].",
+        "starter": "",
+        "expected": "Paris"
+      }
+    },
+    {
+      "id": "dictcount",
+      "chapter": "Dictionaries",
+      "title": "Counting with a Dict",
+      "body": "# Counting with a Dict\n\nThe classic dictionary job: count how often each thing appears.\n\n```python\nvotes = [\"cat\", \"dog\", \"cat\", \"bird\", \"cat\"]\ntally = {}\n\nfor v in votes:\n    if v in tally:\n        tally[v] = tally[v] + 1\n    else:\n        tally[v] = 1\n\nprint(tally)\n```\n\n```\n{'cat': 3, 'dog': 1, 'bird': 1}\n```\n\nThe `if v in tally` check is what stops the first `KeyError`. `in` works on\ndictionaries -- it checks keys, not values.\n\n## The shorter version\n\n`dict.get(key, default)` returns the default when the key is missing, so the\nbranch disappears:\n\n```python\ntally = {}\nfor v in votes:\n    tally[v] = tally.get(v, 0) + 1\n```\n\nOne line that reads as: *\"the count so far, or 0 if I have never seen it, plus\none.\"* This idiom is everywhere in real Python.\n\n> Both versions are correct. The long one is clearer the first time you meet\n> it; the short one is what you will write after a week.",
+      "exercise": {
+        "prompt": "Given words = [\\\"a\\\", \\\"b\\\", \\\"a\\\"], build a count dict and print counts[\\\"a\\\"].",
+        "starter": "words = [\"a\", \"b\", \"a\"]\n",
+        "expected": "2"
+      }
+    },
+    {
+      "id": "dictloop",
+      "chapter": "Dictionaries",
+      "title": "Looping Over a Dict",
+      "body": "# Looping Over a Dict\n\n## Just the keys\n\n```python\nscores = {\"math\": 90, \"art\": 75}\n\nfor subject in scores:\n    print(subject)\n```\n\n```\nmath\nart\n```\n\nLooping a dictionary directly gives you the keys.\n\n## Keys and values together\n\n`.items()` gives you both at once:\n\n```python\nfor subject, score in scores.items():\n    print(f\"{subject}: {score}\")\n```\n\n```\nmath: 90\nart: 75\n```\n\nThat two-variable form in the `for` is called **unpacking** -- each item is a\npair, and Python splits it for you.\n\n## Only one side\n\n```python\nprint(scores.keys())     # dict_keys(['math', 'art'])\nprint(scores.values())   # dict_values([90, 75])\n```\n\n## Order\n\nDictionaries keep the order you inserted keys in, so loops come out in insertion\norder. That is guaranteed in modern Python. Do not rely on it if you *need* a\nparticular order -- sort explicitly instead.",
+      "exercise": {
+        "prompt": "For prices = {\\\"apple\\\": 2, \\\"pear\\\": 3}, loop with .items() and print apple: 2 then pear: 3.",
+        "starter": "prices = {\"apple\": 2, \"pear\": 3}\n",
+        "expected": "apple: 2\npear: 3"
+      }
+    },
+    {
+      "id": "tryexcept",
+      "chapter": "Handling Errors",
+      "title": "try and except",
+      "body": "# try and except\n\nAn error normally stops your program. `try` / `except` lets you catch it and\ndecide what happens instead.\n\n```python\ntry:\n    number = int(\"abc\")\nexcept ValueError:\n    print(\"that was not a number\")\n```\n\n```\nthat was not a number\n```\n\nWithout the `try`, this program would crash. With it, the crash became a\nmessage you chose.\n\n## The shape\n\n- `try:` -- code that might fail\n- `except ValueError:` -- what to do if *that specific error* happens\n\nPerfectionists note: put **only** the risky line in the `try`. If you wrap\ntwenty lines, you will not know which one raised.\n\n## Naming the error\n\n```python\ntry:\n    number = int(\"abc\")\nexcept ValueError as e:\n    print(f\"failed: {e}\")\n```\n\n`as e` gives you the error object, so you can read its message.\n\n## The bad version you will see everywhere\n\n```python\ntry:\n    risky()\nexcept:              # catches everything, including typos in your own code\n    pass             # silently does nothing\n```\n\nThis hides real bugs. If a function name is misspelled, you get silence instead\nof a crash telling you. Catch the **specific** error you expect, and always do\nsomething visible with it.\n\n> A bare `except:` is nearly always a mistake.",
+      "exercise": {
+        "prompt": "Wrap int(\\\"abc\\\") in try/except ValueError so it prints: bad input",
+        "starter": "",
+        "expected": "bad input"
+      }
+    },
+    {
+      "id": "errors2",
+      "chapter": "Handling Errors",
+      "title": "Common Errors",
+      "body": "# Common Errors\n\nFive errors cover almost everything you will hit as a beginner.\n\n## TypeError -- wrong kind of thing\n\n```python\nprint(\"age: \" + 36)\n```\n\n```\nTypeError: can only concatenate str (not \"int\") to str\n```\n\nYou mixed types somewhere. Fix with `str()` or an f-string.\n\n## ValueError -- right type, impossible value\n\n```python\nint(\"abc\")\n```\n\n```\nValueError: invalid literal for int() with base 10: 'abc'\n```\n\nIt is a string as expected, but it does not contain a number.\n\n## NameError -- unknown name\n\n```python\nprint(total)\n```\n\n```\nNameError: name 'total' is not defined\n```\n\nA typo, or the variable was never created. Check spelling and that you assigned\nit *before* using it.\n\n## IndexError -- ran off the end\n\n```python\nfruits = [\"apple\", \"banana\"]\nprint(fruits[5])\n```\n\n```\nIndexError: list index out of range\n```\n\nThe list has 2 items, indices `0` and `1`. There is no `5`.\n\n## KeyError -- missing dict key\n\n```python\nages = {}\nprint(ages[\"Ada\"])\n```\n\n```\nKeyError: 'Ada'\n```\n\nUse `.get()` when the key might be absent.\n\n## Reading them fast\n\nThe **last line** names the error type and explains it. The line above points\nat the exact source line. Read those two and you usually know the fix.",
+      "exercise": {
+        "prompt": "Given items = [\\\"x\\\"], print items[0] inside try/except IndexError. It should print x.",
+        "starter": "items = [\"x\"]\n",
+        "expected": "x"
+      }
+    },
+    {
+      "id": "raising",
+      "chapter": "Handling Errors",
+      "title": "Raising Your Own",
+      "body": "# Raising Your Own\n\nSometimes *your* code knows something is wrong before Python does. `raise` lets\nyou stop with your own error.\n\n```python\ndef set_age(age):\n    if age < 0:\n        raise ValueError(\"age cannot be negative\")\n    return age\n\nprint(set_age(30))\n```\n\n```\n30\n```\n\nCall it with `-1` and you get your own message instead of silence.\n\n## Why bother?\n\nBecause the alternative is returning nonsense:\n\n```python\ndef set_age(age):\n    if age < 0:\n        return None    # the caller may not check, and the bug travels far\n```\n\nReturning a bad value lets the mistake spread. Raising stops it at the source,\nwhere the error message still makes sense.\n\n## Validating at the edge\n\nThe rule of thumb: check inputs when they first enter your program, not deep\ninside it. A function that validates its arguments and then trusts them is much\neasier to reason about than one that re-checks everywhere.\n\n> Think of `raise` as a smoke alarm, not a punishment. Loud and early beats\n> quiet and late.",
+      "exercise": {
+        "prompt": "Write check(n) that raises ValueError if n < 0, else returns n. Call it with 5 and print the result.",
+        "starter": "",
+        "expected": "5"
+      }
+    },
+    {
+      "id": "reading",
+      "chapter": "Working with Files",
+      "title": "Reading Files",
+      "body": "# Reading Files\n\nYou open a file, read it, then close it. The `with` form does the closing for\nyou.\n\n```python\nwith open(\"notes.txt\") as f:\n    text = f.read()\n\nprint(text)\n```\n\n`with` closes the file even if something goes wrong inside the block. Use it\nevery time -- there is no good reason to call `.close()` by hand.\n\n## The file is in the folder you are running from\n\n`open(\"notes.txt\")` looks for the file **next to your program**, not next to\nwherever you happen to be browsing. This is the number-one confusion for\nbeginners, and it produces:\n\n```\nFileNotFoundError: [Errno 2] No such file or directory: 'notes.txt'\n```\n\nIf you see that, the name is misspelled or the file is somewhere else.\n\n## Line by line, not all at once\n\n`.read()` pulls in the whole file. For a big file, loop instead:\n\n```python\nwith open(\"notes.txt\") as f:\n    for line in f:\n        print(line.strip())\n```\n\n`.strip()` removes the newline at the end of each line -- otherwise every\n`print` adds a second blank line.\n\n> In the exercise below, the file already exists in the folder. Look at the\n> panel above the code box to see its contents.",
+      "exercise": {
+        "prompt": "Read notes.txt and print its contents. The file already exists.",
+        "starter": "with open(\"notes.txt\") as f:\n    print(f.read())\n",
+        "expected": "hello",
+        "files": {
+          "notes.txt": "hello\n"
+        }
+      }
+    },
+    {
+      "id": "writing",
+      "chapter": "Working with Files",
+      "title": "Writing Files",
+      "body": "# Writing Files\n\n`\"w\"` mode **replaces** the file. If it existed, the old contents are gone.\n\n```python\nwith open(\"out.txt\", \"w\") as f:\n    f.write(\"first line\\n\")\n```\n\n⚠️ `\"w\"` does not warn you. A typo in the filename plus `\"w\"` is how people\nerase data they meant to append to.\n\n## Adding instead of replacing\n\nUse `\"a\"` for append:\n\n```python\nwith open(\"out.txt\", \"a\") as f:\n    f.write(\"another line\\n\")\n```\n\n`\"a\"` adds to the end and keeps what was there.\n\n## Writing several lines\n\n`.write()` needs newlines spelled out with `\\n`. With many lines,\n`.writelines()` or a loop is clearer:\n\n```python\nwith open(\"out.txt\", \"w\") as f:\n    for n in range(1, 4):\n        f.write(f\"line {n}\\n\")\n```\n\n```\nline 1\nline 2\nline 3\n```\n\nRemember that `\\n` is text you write *inside* the string. Forgetting it\nproduces one long line.\n\n> Files are lost between exercises, so you can write freely. Each Submit starts\n> in a fresh folder.",
+      "exercise": {
+        "prompt": "Write one and two to out.txt (each on its own line) using w mode, then read it back and print it.",
+        "starter": "with open(\"out.txt\", \"w\") as f:\n    f.write(\"one\\n\")\n",
+        "expected": "one\ntwo",
+        "files": {}
+      }
+    },
+    {
+      "id": "filesum",
+      "chapter": "Working with Files",
+      "title": "Putting It Together",
+      "body": "# Putting It Together: Reading and Calculating\n\nThe most useful file skill: read data, compute, print a result.\n\n```python\nwith open(\"sales.txt\") as f:\n    total = 0\n    for line in f:\n        total = total + int(line)\n\nprint(total)\n```\n\nIf `sales.txt` holds:\n\n```\n10\n25\n5\n```\n\nthe answer is `40`.\n\n## Watch out for the newline\n\nEach line from a file ends in `\\n`. `int(\"10\\n\")` actually works -- Python\nignores surrounding whitespace -- so this example is fine. But comparing raw\nlines is not:\n\n```python\nif line == \"10\":      # never true, line is \"10\\n\"\n```\n\nStrip before comparing:\n\n```python\nif line.strip() == \"10\":\n```\n\n## Skipping blank lines\n\nReal files have blank lines at the end. `int(\"\")` raises `ValueError`, so guard\nit:\n\n```python\nfor line in f:\n    line = line.strip()\n    if not line:\n        continue\n    total = total + int(line)\n```\n\nThat three-line pattern handles almost every real-world data file you will meet.\n\n> You now have everything needed to read a spreadsheet export, total a column,\n> and write the result back out.",
+      "exercise": {
+        "prompt": "sales.txt contains 10, 25, 5 on separate lines. Read it and print the total: 40",
+        "starter": "total = 0\n",
+        "expected": "40",
+        "files": {
+          "sales.txt": "10\n25\n5\n"
+        }
+      }
     }
   ]
 }

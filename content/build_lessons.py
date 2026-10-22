@@ -966,6 +966,527 @@ than any tutorial.
 }, 'def biggest(nums):\n    best = nums[0]\n    for n in nums:\n        if n > best:\n            best = n\n    return best\n\nprint(biggest([4, 9, 2]))')
 
 
+# ---------------------------------------------------------------- ch7: dictionaries
+lesson("dicts", "Dictionaries", "Dictionaries", """
+# Dictionaries
+
+A list finds things by position -- `fruits[0]`. A dictionary finds things by
+**name**. You look up a *key* to get its *value*.
+
+```python
+ages = {"Ada": 36, "Grace": 45}
+print(ages["Ada"])
+```
+
+```
+36
+```
+
+Curly braces, `key: value` pairs, separated by commas. This is how you store
+data that has labels rather than a natural order.
+
+## Look, change, add
+
+```python
+ages["Ada"] = 37       # key exists, so this overwrites
+ages["Alan"] = 41      # key is new, so this adds
+print(ages)
+```
+
+```
+{'Ada': 37, 'Grace': 45, 'Alan': 41}
+```
+
+The syntax is identical whether the key exists or not, which is why it is easy
+to silently overwrite something you meant to keep.
+
+## What a missing key does
+
+```python
+print(ages["Bob"])
+```
+
+```
+KeyError: 'Bob'
+```
+
+That crash is on purpose. Better to fail than to invent a value. When you are
+not sure the key exists, use `.get()`:
+
+```python
+print(ages.get("Bob"))          # None
+print(ages.get("Bob", 0))       # 0
+```
+
+## What keys can be
+
+Keys are usually strings or numbers. Values can be anything -- including lists
+and other dictionaries.
+
+> If your data has names or categories, reach for a dict. If it is a sequence
+> of similar things, reach for a list.
+""", {
+    "prompt": "Create a dict named capitals with France mapped to Paris, then print capitals[\\\"France\\\"].",
+    "starter": "",
+    "expected": "Paris",
+}, 'capitals = {"France": "Paris"}\nprint(capitals["France"])')
+
+lesson("dictcount", "Dictionaries", "Counting with a Dict", """
+# Counting with a Dict
+
+The classic dictionary job: count how often each thing appears.
+
+```python
+votes = ["cat", "dog", "cat", "bird", "cat"]
+tally = {}
+
+for v in votes:
+    if v in tally:
+        tally[v] = tally[v] + 1
+    else:
+        tally[v] = 1
+
+print(tally)
+```
+
+```
+{'cat': 3, 'dog': 1, 'bird': 1}
+```
+
+The `if v in tally` check is what stops the first `KeyError`. `in` works on
+dictionaries -- it checks keys, not values.
+
+## The shorter version
+
+`dict.get(key, default)` returns the default when the key is missing, so the
+branch disappears:
+
+```python
+tally = {}
+for v in votes:
+    tally[v] = tally.get(v, 0) + 1
+```
+
+One line that reads as: *"the count so far, or 0 if I have never seen it, plus
+one."* This idiom is everywhere in real Python.
+
+> Both versions are correct. The long one is clearer the first time you meet
+> it; the short one is what you will write after a week.
+""", {
+    "prompt": "Given words = [\\\"a\\\", \\\"b\\\", \\\"a\\\"], build a count dict and print counts[\\\"a\\\"].",
+    "starter": 'words = ["a", "b", "a"]\n',
+    "expected": "2",
+}, 'words = ["a", "b", "a"]\ncounts = {}\nfor w in words:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts["a"])')
+
+lesson("dictloop", "Dictionaries", "Looping Over a Dict", """
+# Looping Over a Dict
+
+## Just the keys
+
+```python
+scores = {"math": 90, "art": 75}
+
+for subject in scores:
+    print(subject)
+```
+
+```
+math
+art
+```
+
+Looping a dictionary directly gives you the keys.
+
+## Keys and values together
+
+`.items()` gives you both at once:
+
+```python
+for subject, score in scores.items():
+    print(f"{subject}: {score}")
+```
+
+```
+math: 90
+art: 75
+```
+
+That two-variable form in the `for` is called **unpacking** -- each item is a
+pair, and Python splits it for you.
+
+## Only one side
+
+```python
+print(scores.keys())     # dict_keys(['math', 'art'])
+print(scores.values())   # dict_values([90, 75])
+```
+
+## Order
+
+Dictionaries keep the order you inserted keys in, so loops come out in insertion
+order. That is guaranteed in modern Python. Do not rely on it if you *need* a
+particular order -- sort explicitly instead.
+""", {
+    "prompt": "For prices = {\\\"apple\\\": 2, \\\"pear\\\": 3}, loop with .items() and print apple: 2 then pear: 3.",
+    "starter": 'prices = {"apple": 2, "pear": 3}\n',
+    "expected": "apple: 2\npear: 3",
+}, 'prices = {"apple": 2, "pear": 3}\nfor name, price in prices.items():\n    print(f"{name}: {price}")')
+
+# ---------------------------------------------------------------- ch8: errors
+lesson("tryexcept", "Handling Errors", "try and except", """
+# try and except
+
+An error normally stops your program. `try` / `except` lets you catch it and
+decide what happens instead.
+
+```python
+try:
+    number = int("abc")
+except ValueError:
+    print("that was not a number")
+```
+
+```
+that was not a number
+```
+
+Without the `try`, this program would crash. With it, the crash became a
+message you chose.
+
+## The shape
+
+- `try:` -- code that might fail
+- `except ValueError:` -- what to do if *that specific error* happens
+
+Perfectionists note: put **only** the risky line in the `try`. If you wrap
+twenty lines, you will not know which one raised.
+
+## Naming the error
+
+```python
+try:
+    number = int("abc")
+except ValueError as e:
+    print(f"failed: {e}")
+```
+
+`as e` gives you the error object, so you can read its message.
+
+## The bad version you will see everywhere
+
+```python
+try:
+    risky()
+except:              # catches everything, including typos in your own code
+    pass             # silently does nothing
+```
+
+This hides real bugs. If a function name is misspelled, you get silence instead
+of a crash telling you. Catch the **specific** error you expect, and always do
+something visible with it.
+
+> A bare `except:` is nearly always a mistake.
+""", {
+    "prompt": "Wrap int(\\\"abc\\\") in try/except ValueError so it prints: bad input",
+    "starter": "",
+    "expected": "bad input",
+}, 'try:\n    int("abc")\nexcept ValueError:\n    print("bad input")')
+
+lesson("errors2", "Handling Errors", "Common Errors", """
+# Common Errors
+
+Five errors cover almost everything you will hit as a beginner.
+
+## TypeError -- wrong kind of thing
+
+```python
+print("age: " + 36)
+```
+
+```
+TypeError: can only concatenate str (not "int") to str
+```
+
+You mixed types somewhere. Fix with `str()` or an f-string.
+
+## ValueError -- right type, impossible value
+
+```python
+int("abc")
+```
+
+```
+ValueError: invalid literal for int() with base 10: 'abc'
+```
+
+It is a string as expected, but it does not contain a number.
+
+## NameError -- unknown name
+
+```python
+print(total)
+```
+
+```
+NameError: name 'total' is not defined
+```
+
+A typo, or the variable was never created. Check spelling and that you assigned
+it *before* using it.
+
+## IndexError -- ran off the end
+
+```python
+fruits = ["apple", "banana"]
+print(fruits[5])
+```
+
+```
+IndexError: list index out of range
+```
+
+The list has 2 items, indices `0` and `1`. There is no `5`.
+
+## KeyError -- missing dict key
+
+```python
+ages = {}
+print(ages["Ada"])
+```
+
+```
+KeyError: 'Ada'
+```
+
+Use `.get()` when the key might be absent.
+
+## Reading them fast
+
+The **last line** names the error type and explains it. The line above points
+at the exact source line. Read those two and you usually know the fix.
+""", {
+    "prompt": "Given items = [\\\"x\\\"], print items[0] inside try/except IndexError. It should print x.",
+    "starter": 'items = ["x"]\n',
+    "expected": "x",
+}, 'items = ["x"]\ntry:\n    print(items[0])\nexcept IndexError:\n    print("out of range")')
+
+lesson("raising", "Handling Errors", "Raising Your Own", """
+# Raising Your Own
+
+Sometimes *your* code knows something is wrong before Python does. `raise` lets
+you stop with your own error.
+
+```python
+def set_age(age):
+    if age < 0:
+        raise ValueError("age cannot be negative")
+    return age
+
+print(set_age(30))
+```
+
+```
+30
+```
+
+Call it with `-1` and you get your own message instead of silence.
+
+## Why bother?
+
+Because the alternative is returning nonsense:
+
+```python
+def set_age(age):
+    if age < 0:
+        return None    # the caller may not check, and the bug travels far
+```
+
+Returning a bad value lets the mistake spread. Raising stops it at the source,
+where the error message still makes sense.
+
+## Validating at the edge
+
+The rule of thumb: check inputs when they first enter your program, not deep
+inside it. A function that validates its arguments and then trusts them is much
+easier to reason about than one that re-checks everywhere.
+
+> Think of `raise` as a smoke alarm, not a punishment. Loud and early beats
+> quiet and late.
+""", {
+    "prompt": "Write check(n) that raises ValueError if n < 0, else returns n. Call it with 5 and print the result.",
+    "starter": "",
+    "expected": "5",
+}, 'def check(n):\n    if n < 0:\n        raise ValueError("negative")\n    return n\n\nprint(check(5))')
+
+# ---------------------------------------------------------------- ch9: files
+lesson("reading", "Working with Files", "Reading Files", """
+# Reading Files
+
+You open a file, read it, then close it. The `with` form does the closing for
+you.
+
+```python
+with open("notes.txt") as f:
+    text = f.read()
+
+print(text)
+```
+
+`with` closes the file even if something goes wrong inside the block. Use it
+every time -- there is no good reason to call `.close()` by hand.
+
+## The file is in the folder you are running from
+
+`open("notes.txt")` looks for the file **next to your program**, not next to
+wherever you happen to be browsing. This is the number-one confusion for
+beginners, and it produces:
+
+```
+FileNotFoundError: [Errno 2] No such file or directory: 'notes.txt'
+```
+
+If you see that, the name is misspelled or the file is somewhere else.
+
+## Line by line, not all at once
+
+`.read()` pulls in the whole file. For a big file, loop instead:
+
+```python
+with open("notes.txt") as f:
+    for line in f:
+        print(line.strip())
+```
+
+`.strip()` removes the newline at the end of each line -- otherwise every
+`print` adds a second blank line.
+
+> In the exercise below, the file already exists in the folder. Look at the
+> panel above the code box to see its contents.
+""", {
+    "prompt": "Read notes.txt and print its contents. The file already exists.",
+    "starter": 'with open("notes.txt") as f:\n    print(f.read())\n',
+    "expected": "hello",
+    "files": {"notes.txt": "hello\n"},
+}, 'with open("notes.txt") as f:\n    print(f.read().strip())')
+
+lesson("writing", "Working with Files", "Writing Files", """
+# Writing Files
+
+`"w"` mode **replaces** the file. If it existed, the old contents are gone.
+
+```python
+with open("out.txt", "w") as f:
+    f.write("first line\\n")
+```
+
+⚠️ `"w"` does not warn you. A typo in the filename plus `"w"` is how people
+erase data they meant to append to.
+
+## Adding instead of replacing
+
+Use `"a"` for append:
+
+```python
+with open("out.txt", "a") as f:
+    f.write("another line\\n")
+```
+
+`"a"` adds to the end and keeps what was there.
+
+## Writing several lines
+
+`.write()` needs newlines spelled out with `\\n`. With many lines,
+`.writelines()` or a loop is clearer:
+
+```python
+with open("out.txt", "w") as f:
+    for n in range(1, 4):
+        f.write(f"line {n}\\n")
+```
+
+```
+line 1
+line 2
+line 3
+```
+
+Remember that `\\n` is text you write *inside* the string. Forgetting it
+produces one long line.
+
+> Files are lost between exercises, so you can write freely. Each Submit starts
+> in a fresh folder.
+""", {
+    "prompt": "Write one and two to out.txt (each on its own line) using w mode, then read it back and print it.",
+    "starter": 'with open("out.txt", "w") as f:\n    f.write("one\\n")\n',
+    "expected": "one\ntwo",
+    "files": {},
+}, 'with open("out.txt", "w") as f:\n    f.write("one\\n")\n    f.write("two\\n")\n\nwith open("out.txt") as f:\n    print(f.read().strip())')
+
+lesson("filesum", "Working with Files", "Putting It Together", """
+# Putting It Together: Reading and Calculating
+
+The most useful file skill: read data, compute, print a result.
+
+```python
+with open("sales.txt") as f:
+    total = 0
+    for line in f:
+        total = total + int(line)
+
+print(total)
+```
+
+If `sales.txt` holds:
+
+```
+10
+25
+5
+```
+
+the answer is `40`.
+
+## Watch out for the newline
+
+Each line from a file ends in `\\n`. `int("10\\n")` actually works -- Python
+ignores surrounding whitespace -- so this example is fine. But comparing raw
+lines is not:
+
+```python
+if line == "10":      # never true, line is "10\\n"
+```
+
+Strip before comparing:
+
+```python
+if line.strip() == "10":
+```
+
+## Skipping blank lines
+
+Real files have blank lines at the end. `int("")` raises `ValueError`, so guard
+it:
+
+```python
+for line in f:
+    line = line.strip()
+    if not line:
+        continue
+    total = total + int(line)
+```
+
+That three-line pattern handles almost every real-world data file you will meet.
+
+> You now have everything needed to read a spreadsheet export, total a column,
+> and write the result back out.
+""", {
+    "prompt": "sales.txt contains 10, 25, 5 on separate lines. Read it and print the total: 40",
+    "starter": "total = 0\n",
+    "expected": "40",
+    "files": {"sales.txt": "10\n25\n5\n"},
+}, 'total = 0\nwith open("sales.txt") as f:\n    for line in f:\n        total = total + int(line)\nprint(total)')
+
+
 # ---------------------------------------------------------------- emit
 def build():
     out = []
@@ -977,28 +1498,45 @@ def build():
     return {"lessons": out}
 
 
-if __name__ == "__main__":
-    # Self-test: run every reference solution and confirm it matches `expected`.
+def verify_solutions() -> None:
+    """Run every reference solution in a throwaway dir, with its files seeded."""
+    import shutil
     import subprocess
     import sys
+    import tempfile
 
     failures = []
-    for id, chapter, title, body, exercise, solution in L:
+    for id, _chapter, _title, _body, exercise, solution in L:
         if not exercise:
             continue
-        proc = subprocess.run([sys.executable, "-I", "-c", solution],
-                              capture_output=True, text=True, timeout=10)
-        got = proc.stdout.rstrip("\n")
-        want = exercise["expected"]
-        if proc.returncode != 0 or got != want:
-            failures.append((id, want, got, proc.stderr.strip()))
+        workdir = tempfile.mkdtemp(prefix="verify-")
+        try:
+            for name, content in (exercise.get("files") or {}).items():
+                target = Path(workdir, name)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
+
+            proc = subprocess.run([sys.executable, "-I", "-c", solution],
+                                  capture_output=True, text=True,
+                                  timeout=10, cwd=workdir)
+            got = proc.stdout.rstrip("\n")
+            want = exercise["expected"]
+            if proc.returncode != 0 or got != want:
+                failures.append((id, want, got, proc.stderr.strip()))
+        finally:
+            shutil.rmtree(workdir, ignore_errors=True)
 
     if failures:
         for id, want, got, err in failures:
             print(f"FAIL {id}\n  want: {want!r}\n  got:  {got!r}\n  err:  {err}")
         sys.exit(1)
 
+
+if __name__ == "__main__":
+    verify_solutions()
+
     path = Path(__file__).parent / "lessons.json"
     path.write_text(json.dumps(build(), indent=2, ensure_ascii=False) + "\n", "utf-8")
     n_ex = sum(1 for x in L if x[4])
-    print(f"OK: {len(L)} lessons, {n_ex} exercises verified -> {path}")
+    n_files = sum(1 for x in L if x[4] and x[4].get("files"))
+    print(f"OK: {len(L)} lessons, {n_ex} exercises verified ({n_files} with files) -> {path}")

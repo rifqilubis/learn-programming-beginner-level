@@ -17,6 +17,7 @@ const el = {
   progressFill: document.getElementById('progress-fill'),
   exercise: document.getElementById('exercise'),
   prompt: document.getElementById('exercise-prompt'),
+  files: document.getElementById('exercise-files'),
   code: document.getElementById('code'),
   output: document.getElementById('output'),
   runBtn: document.getElementById('run-btn'),
@@ -202,6 +203,7 @@ function renderLesson() {
     el.output.hidden = true;
     el.output.textContent = '';
     el.output.className = 'output';
+    renderFiles(ex.files);
   } else {
     el.exercise.hidden = true;
   }
@@ -210,6 +212,27 @@ function renderLesson() {
   el.nextBtn.disabled = state.index === state.lessons.length - 1;
   renderSidebar();
   renderProgress();
+}
+
+// Show the files that already exist on disk for this exercise (file lessons).
+function renderFiles(files) {
+  el.files.innerHTML = '';
+  const names = Object.keys(files ?? {});
+  if (!names.length) { el.files.hidden = true; return; }
+  el.files.hidden = false;
+
+  const label = document.createElement('div');
+  label.className = 'files-label';
+  label.textContent = names.length === 1 ? 'File in this folder:' : 'Files in this folder:';
+  el.files.appendChild(label);
+
+  for (const name of names) {
+    const block = document.createElement('div');
+    block.className = 'file-item';
+    block.innerHTML = `<div class="file-name">${escapeHtml(name)}</div>` +
+      `<pre class="file-body">${escapeHtml(files[name])}</pre>`;
+    el.files.appendChild(block);
+  }
 }
 
 function go(index) {
@@ -247,7 +270,10 @@ async function runCode() {
   if (!lesson?.exercise) return;
   el.runBtn.disabled = true;
   try {
-    const result = await post('/api/run', { code: el.code.value });
+    const result = await post('/api/run', {
+      code: el.code.value,
+      files: lesson.exercise.files ?? {},
+    });
     showOutput(renderRunResult(result), result.ok ? 'pass' : 'fail');
   } catch {
     showOutput('<span class="out-err">Could not reach the server. Is server.py running?</span>', 'fail');
@@ -264,6 +290,7 @@ async function submitCode() {
     const result = await post('/api/check', {
       code: el.code.value,
       expected: lesson.exercise.expected,
+      files: lesson.exercise.files ?? {},
     });
 
     if (result.passed) {

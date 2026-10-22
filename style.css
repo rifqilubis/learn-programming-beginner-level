@@ -253,6 +253,47 @@ body { display: flex; overflow: hidden; }
 
 .exercise-prompt { font-size: .9rem; color: #c3d3e3; }
 
+.exercise-files {
+  padding: .8rem 1.05rem;
+  border-bottom: 1px solid var(--border);
+  background: #10161f;
+}
+
+.files-label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+
+.file-item { margin-bottom: .6rem; }
+.file-item:last-child { margin-bottom: 0; }
+
+.file-name {
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: #a5d6ff;
+  margin-bottom: .25rem;
+}
+
+.file-body {
+  margin: 0;
+  padding: .55rem .7rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--mono);
+  font-size: .78rem;
+  line-height: 1.5;
+  color: #c8d6e5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
 .code-input {
   display: block;
   width: 100%;

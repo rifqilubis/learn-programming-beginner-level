@@ -28,6 +28,7 @@ import build_lessons as B  # noqa: E402  (reference solutions live here)
 
 lessons = get("/api/lessons")["lessons"]
 solutions = {i: sol for i, _c, _t, _b, _e, sol in B.L if sol}
+exercises = {i: ex for i, _c, _t, _b, ex, _s in B.L if ex}
 
 fails = []
 for lesson in lessons:
@@ -39,13 +40,16 @@ for lesson in lessons:
         fails.append((lesson["id"], "no reference solution"))
         continue
 
+    files = ex.get("files") or {}
+
     # correct solution must pass
-    r = post("/api/check", {"code": sol, "expected": ex["expected"]})
+    r = post("/api/check", {"code": sol, "expected": ex["expected"], "files": files})
     if not r.get("passed"):
         fails.append((lesson["id"], f"solution failed: {r}"))
 
     # wrong solution must NOT pass
-    r2 = post("/api/check", {"code": "print('definitely wrong')", "expected": ex["expected"]})
+    r2 = post("/api/check", {"code": "print('definitely wrong')",
+                             "expected": ex["expected"], "files": files})
     if r2.get("passed"):
         fails.append((lesson["id"], "wrong answer was accepted"))
 
@@ -66,6 +70,34 @@ r = post("/api/run", {"code": "import os; os._exit(0)"})
 if r.get("ok") is None:
     fails.append(("crash-resilience", f"server died on hard exit: {r}"))
 
+# --- file isolation: seeded files must be readable, and writes must not leak ---
+r = post("/api/run", {"code": 'print(open("d.txt").read().strip())', "files": {"d.txt": "seeded\n"}})
+if r.get("stdout", "").strip() != "seeded":
+    fails.append(("seed-file", f"seeded file not readable: {r}"))
+
+r = post("/api/run", {"code": 'open("leak.txt","w").write("x"); print("wrote")'})
+if r.get("stdout", "").strip() != "wrote":
+    fails.append(("write-file", f"could not write in temp dir: {r}"))
+
+r = post("/api/run", {"code": 'import os; print(os.path.exists("leak.txt"))'})
+if r.get("stdout", "").strip() != "False":
+    fails.append(("temp-isolation", "files leaked between runs"))
+
+r = post("/api/run", {"code": 'import os; print(os.getcwd())'})
+if "/tmp/lesson-" not in r.get("stdout", ""):
+    fails.append(("cwd", f"not running in a temp dir: {r.get('stdout')!r}"))
+
+# --- path traversal in the files map must be refused ---
+r = post("/api/run", {"code": 'import os; print(os.path.exists("../../escape.txt"))',
+                      "files": {"../../escape.txt": "bad"}})
+if r.get("stdout", "").strip() != "False":
+    fails.append(("traversal", f"path traversal was allowed: {r}"))
+
+# --- nested file paths are still supported ---
+r = post("/api/run", {"code": 'print(open("sub/x.txt").read().strip())', "files": {"sub/x.txt": "deep\n"}})
+if r.get("stdout", "").strip() != "deep":
+    fails.append(("nested-file", f"nested seed failed: {r}"))
+
 if fails:
     for name, why in fails:
         print(f"FAIL {name}: {why}")
@@ -74,3 +106,5 @@ if fails:
 print(f"PASS: {len(lessons)} lessons, {sum(1 for l in lessons if l.get('exercise'))} exercises")
 print("PASS: wrong answers rejected")
 print("PASS: infinite loop killed, output capped, hard-exit survived")
+print("PASS: file seeding, temp-dir isolation, no leaks between runs")
+print("PASS: path traversal refused, nested paths allowed")
